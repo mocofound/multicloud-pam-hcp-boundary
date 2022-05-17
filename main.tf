@@ -16,7 +16,13 @@ resource "hcp_vault_cluster" "my_cluster" {
   hvn_id = "main-hvn"
   public_endpoint = true
 #  cloud_provider = "aws"
-  
-
 }
+
+resource "hcp_hvn" "my_hvn" {
+  hvn_id = "main-hvn"
+  region = "us-west-2"
+  cloud_provider = "aws"
+}
+
+
 
