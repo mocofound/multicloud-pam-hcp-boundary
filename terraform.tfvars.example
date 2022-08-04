@@ -1,0 +1,4 @@
+boundary_controller_address="https://12345-9dc8-42d0-adbb-3ad26f5abdcc.boundary.hashicorp.cloud"
+boundary_auth_method_id="ampw_Pjdfs3f43f"
+boundary_login_name="myboundaryuser"        
+boundary_login_password="MyBoundaryPassword"
