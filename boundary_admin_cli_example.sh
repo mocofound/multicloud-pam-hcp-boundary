@@ -1,9 +1,8 @@
 #!/bin/bash
-export BOUNDARY_ADDR="https://d2060e91-05ee-4e23-bb56-5ada2cbf7628.boundary.hashicorp.cloud"
-boundary authenticate oidc -auth-method-id amoidc_qhb1gUU3U5
-boundary connect ssh -target-id ttcp_A5QlP4Box1 
-boundary connect ssh -target-name aws_target_1 -target-scope-name project_aws
-
+export BOUNDARY_ADDR="https://12345-05ee-4e23-bb56-5ada2cbf7628.boundary.hashicorp.cloud"
+boundary authenticate password -login-name myboundaryuser1 -auth-method-id ampw_l8U277lBcI
+boundary credential-libraries list -credential-store-id csvlt_DlGIWbswKx
+boundary credential-libraries create vault -credential-store-id csvlt_DlGIWbswKx -vault-path "kv/data/my-secret" -credential-type=ssh_private_key
 
 #boundary authenticate password -auth-method-id ampw_l8U277lBcI  -login-name myboundaryuser1
 
@@ -22,6 +21,3 @@ boundary connect ssh -target-name aws_target_1 -target-scope-name project_aws
 #boundary connect ssh -h
 #boundary connect ssh -target-id ttcp_A5QlP4Box1 
 #boundary connect ssh -target-name aws_target_1 -target-scope-name project_aws
-
-
-
