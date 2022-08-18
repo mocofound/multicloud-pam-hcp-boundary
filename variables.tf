@@ -10,6 +10,27 @@ variable "boundary_controller_address" {
   default = "changeme"
 }
 
-variable "boundary_auth_method_id" {
+variable "boundary_password_auth_method_id" {
   default = "changeme"
 }
+
+variable "hcp_client_id" {
+  default = "changeme"
+}
+
+variable "hcp_client_secret" {
+  default = "changeme"
+}
+
+variable "aad_client_id" {
+  default = "changeme"
+}
+
+variable "aad_client_secret_value" {
+  default = "changeme"
+}
+
+variable "aad_tenant_id" {
+  default = "changeme"
+}
+

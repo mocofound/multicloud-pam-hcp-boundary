@@ -2,6 +2,13 @@
 
 ## Setup
 Install Terraform >v1.0
-terraform init
-terraform terraform apply
 
+rename "terraform.tfvars.example" file to "terraform.tfvars"
+
+populate "terraform.tfvars" files with appropriate variables
+
+terraform init
+
+terraform plan
+
+terraform apply
