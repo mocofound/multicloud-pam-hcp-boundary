@@ -130,7 +130,7 @@ resource "boundary_role" "oidc_role_3" {
 */
 
 resource "boundary_host_catalog_static" "foo" {
-  name        = "test"
+  name        = "aws_host_catalog"
   description = "test catalog"
   scope_id    = boundary_scope.project_aws.id
 }
@@ -151,7 +151,7 @@ resource "boundary_host_static" "bar" {
 
 resource "boundary_host_set_static" "foo" {
   type            = "static"
-  name            = "foo"
+  name            = "aws_host_set"
   host_catalog_id = boundary_host_catalog_static.foo.id
 
   host_ids = [
@@ -169,56 +169,63 @@ resource "boundary_target" "foo" {
   host_source_ids = [
     boundary_host_set_static.foo.id
   ]
+  #application_credential_source_ids = [
+  #  boundary_credential_library_vault.aws_ssh.id
+  #]
   application_credential_source_ids = [
-    boundary_credential_library_vault.aws_ssh.id
+    "clvlt_cZSSRalbNF"
   ]
+  
 }
 
+/*
 resource "boundary_credential_store_static" "creds" {
   name        = "example_static_credential_store"
   description = "My first static credential store!"
   scope_id    = boundary_scope.project_aws.id
 }
+*/
 
 /*
-resource "boundary_group" "aws_users" {
-  name        = "aws_users"
-  description = "aws_users"
-  member_ids  = ["u_mhjU1BIExy"]
-  scope_id    = boundary_scope.org.id
-}
+resource "boundary_target" "backend_servers_postgres" {
+  type                     = "tcp"
+  name                     = "postgres_server"
+  description              = "Backend postgres target"
+  scope_id                 = boundary_scope.project_aws.id
+  default_port             = 5432
+  session_connection_limit = -1
+  application_credential_source_ids = [
+    boundary_credential_library_vault.postgres_cred_library.id
+  ]
 
-resource "boundary_group" "azure_users" {
-  name        = "azure users"
-  description = "azure users"
-  member_ids  = ["u_auth"]
-  scope_id    = boundary_scope.org.id
-}
-
-resource "boundary_group" "gcp_users" {
-  name        = "gcp users"
-  description = "gcp users"
-  member_ids  = ["u_nzuKzWnkQU"]
-  scope_id    = boundary_scope.org.id
-}
-
-resource "boundary_group" "onprem_users" {
-  name        = "onprem users"
-  description = "onprem users"
-  member_ids  = ["u_nzuKzWnkQU"]
-  scope_id    = boundary_scope.org.id
+  host_source_ids = [
+    boundary_host_set_static.foo.id
+  ]
 }
 */
 
+
+resource "boundary_credential_library_vault" "postgres_cred_library" {
+  name                = "postgres_cred_library"
+  description         = "Vault credential library for postgres access"
+  credential_store_id = boundary_credential_store_vault.my_cred_store.id
+  path                = "database/creds/vault_go_demo" # change to Vault backend path
+  http_method         = "GET"
+}
+
 resource "boundary_credential_library_vault" "aws_ssh" {
   name                = "aws_ssh"
-  description         = "My first Vault credential library!"
+  description         = "Vault credential library for AWS ssh access"
   credential_store_id = boundary_credential_store_vault.my_cred_store.id
   path                = "kv/data/my-secret" # change to Vault backend path
   http_method         = "GET"
+  #Note: credential type parameter is not available as of v1.0.10 of the Boundary Terraform Provider
+  #Use CLI to update or create credential-library with flag -credential-type=ssh_private_key
+  #boundary credential-libraries create vault -credential-store-id csvlt_DlGIWbswKx -vault-path "kv/data/my-secret" -credential-type=ssh_private_key
+  
+  #credential_type     = "ssh_private_key"
   
 }
-
 
 resource "boundary_credential_store_vault" "my_cred_store" {
   name        = "my_cred_store"

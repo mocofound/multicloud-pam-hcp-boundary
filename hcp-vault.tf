@@ -12,7 +12,7 @@ resource "hcp_vault_cluster_admin_token" "my_token" {
 resource "vault_generic_secret" "ssh_key" {
   path = "kv/my-secret"
   data_json = jsonencode({
-  "username": "ubuntu@${aws_eip.hashicat.public_dns}",
+  "username": "ubuntu",
   "private_key": "${tls_private_key.hashicat.private_key_pem}"
 })
 }

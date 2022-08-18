@@ -9,6 +9,7 @@
 prereqs.sh
 feedback.txt
 *.pem
+*cli.sh
 
 # Crash log files
 crash.log

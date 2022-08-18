@@ -79,6 +79,13 @@ resource "aws_security_group" "hashicat" {
   }
 
   ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -220,7 +227,14 @@ resource "null_resource" "configure-cat-app" {
       host        = aws_eip.hashicat.public_ip
     }
   }
-
+  /*
+      "sudo apt -y install postgresql postgresql-contrib",
+      "sudo systemctl start postgresql.service",
+      "sudo -u postgres psql",
+      "sleep 15",
+      "\\q",
+  */    
+#Postgres Info: https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart
   provisioner "remote-exec" {
     inline = [
       "sudo apt -y update",
