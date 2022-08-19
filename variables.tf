@@ -34,3 +34,10 @@ variable "aad_tenant_id" {
   default = "changeme"
 }
 
+variable "aws_db_instance_login_name" {
+  default = "changeme"
+}
+
+variable "aws_db_instance_login_password" {
+  default = "changeme"
+}

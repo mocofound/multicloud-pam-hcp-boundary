@@ -229,24 +229,42 @@ resource "null_resource" "configure-cat-app" {
   }
   /*
       "sudo apt -y install postgresql postgresql-contrib",
+      "sudo -u postgres psql",
+      "sudo chown -R ubuntu:ubuntu /etc/postgresql/10/main/postgresql.conf", 
+      "echo "listen_addresses = '*'" >> /etc/postgresql/10/main/postgresql.conf",
+      "sudo chown -R ubuntu:ubuntu /etc/postgresql/10/main/pg_hba.conf", 
+      "echo "host    all             all              0.0.0.0/0                       md5" >> /etc/postgresql/10/main/pg_hba.conf",
+      "echo "host    all             all              ::/0                       md5" >> /etc/postgresql/10/main/pg_hba.conf",
       "sudo systemctl start postgresql.service",
       "sudo -u postgres psql",
+      "sleep 1",
+      "\\q",
       "sleep 15",
       "\\q",
-  */    
-#Postgres Info: https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart
-  provisioner "remote-exec" {
-    inline = [
       "sudo apt -y update",
       "sleep 15",
-      "sudo apt -y update",
       "sudo apt -y install apache2",
       "sudo systemctl start apache2",
       "sudo chown -R ubuntu:ubuntu /var/www/html",
       "chmod +x *.sh",
       "PLACEHOLDER=${var.placeholder} WIDTH=${var.width} HEIGHT=${var.height} PREFIX=${var.prefix} ./deploy_app.sh",
+
+  */    
+#Postgres Info: https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart
+ provisioner "remote-exec" {
+    inline = [
+      "sudo apt -y install postgresql postgresql-contrib",
+      "sudo chown -R ubuntu:ubuntu /etc/postgresql/10/main/postgresql.conf", 
+      "echo \"listen_addresses = '*'\" >> /etc/postgresql/10/main/postgresql.conf",
+      "sudo chown -R ubuntu:ubuntu /etc/postgresql/10/main/pg_hba.conf", 
+      "echo \"host    all             all             0.0.0.0/0                  md5\" >> /etc/postgresql/10/main/pg_hba.conf",
+      "echo \"host    all             all             ::/0                       md5\" >> /etc/postgresql/10/main/pg_hba.conf",
+      "sudo systemctl stop postgresql.service",
+      "sudo systemctl start postgresql.service",
+      "sudo apt -y update",
       "sudo apt -y install cowsay",
       "cowsay Mooooooooooo!",
+      
     ]
 
     connection {
@@ -255,7 +273,9 @@ resource "null_resource" "configure-cat-app" {
       private_key = tls_private_key.hashicat.private_key_pem
       host        = aws_eip.hashicat.public_ip
     }
+    
   }
+  
 }
 
 resource "tls_private_key" "hashicat" {

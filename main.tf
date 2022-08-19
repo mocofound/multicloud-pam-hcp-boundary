@@ -42,12 +42,3 @@ provider "vault" {
   token = hcp_vault_cluster_admin_token.my_token.token
   #token = vault_token.boundary_token.client_token
 }
-
-/*
-provider "vault" {
-  alias = "jenkins_namespace"
-  address    = var.vault_address
-  token      = var.vault_token
-  namespace = var.vault_jenkins_namespace
-}
-*/

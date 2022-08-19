@@ -1,9 +1,8 @@
 #!/bin/bash
 export BOUNDARY_ADDR="https://12345-05ee-4e23-bb56-5ada2cbf7628.boundary.hashicorp.cloud"
 boundary authenticate oidc -auth-method-id amoidc_qhb1gUU3U5
-boundary connect ssh -target-id ttcp_A5QlP4Box1 
 boundary connect ssh -target-name aws_target_1 -target-scope-name project_aws
-
+boundary connect ssh -target-id ttcp_A5QlP4Box1 
 
 boundary authenticate password 
 
