@@ -13,6 +13,15 @@ resource "boundary_auth_method_oidc" "auth" {
 	#callback_url           = "https://72a42559-c184-43ab-ac89-82dc40245e58.boundary.hashicorp.cloud/v1/auth-methods/oidc:authenticate:callback"
 }
 
+output "database_connection_string" {
+  value = vault_database_secret_backend_connection.postgres.postgresql[0].connection_url
+}
+
+output "database_name_from_vault_backend" {
+  value = vault_database_secret_backend_connection.postgres.name
+}
+
+
 /*
 #Alternatively, set primary auth method for scope so that users are created on the fly
 resource "boundary_account_oidc" "oidc_user" {
@@ -81,6 +90,7 @@ resource "boundary_scope" "project_onprem" {
 resource "boundary_managed_group" "idp_aws_users" {
   name           = "idp_aws_users"
   description    = "AWS users as defined by external IDP/auth method"
+
   auth_method_id = boundary_auth_method_oidc.auth.id
   filter         = "\"onmicrosoft.com\" in \"/userinfo/upn\""
 }
@@ -137,14 +147,7 @@ resource "boundary_host_catalog_static" "foo" {
 
 resource "boundary_host_static" "foo" {
   type            = "static"
-  name            = "aws_host_1"
-  host_catalog_id = boundary_host_catalog_static.foo.id
-  address         = aws_instance.hashicat.public_ip
-}
-
-resource "boundary_host_static" "bar" {
-  type            = "static"
-  name            = "aws_host_2"
+  name            = "awsec2_ssh_host_1"
   host_catalog_id = boundary_host_catalog_static.foo.id
   address         = aws_instance.hashicat.public_ip
 }
@@ -156,26 +159,37 @@ resource "boundary_host_set_static" "foo" {
 
   host_ids = [
     boundary_host_static.foo.id,
-    boundary_host_static.bar.id,
   ]
 }
 
-resource "boundary_target" "foo" {
-  name         = "aws_target_1"
-  description  = "aws_target_1"
-  type         = "tcp"
-  default_port = "22"
-  scope_id     = boundary_scope.project_aws.id
-  host_source_ids = [
-    boundary_host_set_static.foo.id
+resource "boundary_host_catalog_static" "postgres" {
+  name        = "postgres_host_catalog"
+  description = "postgres host catalog"
+  scope_id    = boundary_scope.project_aws.id
+}
+
+resource "boundary_host_set_static" "postgres" {
+  type            = "static"
+  name            = "postgres_host_set"
+  host_catalog_id = boundary_host_catalog_static.postgres.id
+
+  host_ids = [
+    boundary_host_static.postgres.id,
   ]
-  #application_credential_source_ids = [
-  #  boundary_credential_library_vault.aws_ssh.id
-  #]
-  application_credential_source_ids = [
-    "clvlt_cZSSRalbNF"
-  ]
-  
+}
+
+resource "boundary_host_static" "postgres" {
+  type            = "static"
+  name            = "postgres_host_1"
+  host_catalog_id = boundary_host_catalog_static.postgres.id
+  address         = aws_db_instance.rds.address
+}
+
+resource "boundary_host_static" "rds_postgres" {
+  type            = "static"
+  name            = "postgres_rds_host"
+  host_catalog_id = boundary_host_catalog_static.postgres.id
+  address         = aws_db_instance.rds.address
 }
 
 /*
@@ -186,112 +200,3 @@ resource "boundary_credential_store_static" "creds" {
 }
 */
 
-/*
-resource "boundary_target" "backend_servers_postgres" {
-  type                     = "tcp"
-  name                     = "postgres_server"
-  description              = "Backend postgres target"
-  scope_id                 = boundary_scope.project_aws.id
-  default_port             = 5432
-  session_connection_limit = -1
-  application_credential_source_ids = [
-    boundary_credential_library_vault.postgres_cred_library.id
-  ]
-
-  host_source_ids = [
-    boundary_host_set_static.foo.id
-  ]
-}
-*/
-
-
-resource "boundary_credential_library_vault" "postgres_cred_library" {
-  name                = "postgres_cred_library"
-  description         = "Vault credential library for postgres access"
-  credential_store_id = boundary_credential_store_vault.my_cred_store.id
-  path                = "database/creds/vault_go_demo" # change to Vault backend path
-  http_method         = "GET"
-}
-
-resource "boundary_credential_library_vault" "aws_ssh" {
-  name                = "aws_ssh"
-  description         = "Vault credential library for AWS ssh access"
-  credential_store_id = boundary_credential_store_vault.my_cred_store.id
-  path                = "kv/data/my-secret" # change to Vault backend path
-  http_method         = "GET"
-  #Note: credential type parameter is not available as of v1.0.10 of the Boundary Terraform Provider
-  #Use CLI to update or create credential-library with flag -credential-type=ssh_private_key
-  #boundary credential-libraries create vault -credential-store-id csvlt_DlGIWbswKx -vault-path "kv/data/my-secret" -credential-type=ssh_private_key
-  
-  #credential_type     = "ssh_private_key"
-  
-}
-
-resource "boundary_credential_store_vault" "my_cred_store" {
-  name        = "my_cred_store"
-  description = "My first Vault credential store!"
-  address     = hcp_vault_cluster.my_cluster.vault_public_endpoint_url     # change to Vault address
-  namespace   = "admin"
-  token       = vault_token.boundary_token.client_token               # change to valid Vault token
-  scope_id    = boundary_scope.project_aws.id
-}
-
-/*
-resource "boundary_host_catalog_static" "aws_static" {
-  scope_id = boundary_scope.project_aws.id
-}
-
-resource "boundary_host_static" "first" {
-  type            = "static"
-  name            = "aws_host_1"
-  description     = "My first aws host!"
-  address         = aws_instance.hashicat.public_dns
-  host_catalog_id = boundary_host_catalog_static.aws_static.id
-
-  depends_on = [
-    aws_instance.hashicat
-  ]
-}
-*/
-
-/*
-resource "boundary_role" "scope_admin" {
-  scope_id       = boundary_scope.org.id
-  grant_scope_id = "global"
-  grant_strings = [
-    "id=*;type=*;actions=*"
-  ]
-  principal_ids = []
-}
-
-
-resource "boundary_credential_store_vault" "my_store" {
-  name        = "foo"
-  description = "My first Vault credential store!"
-  address     = hcp_vault_cluster.my_cluster.vault_public_endpoint_url     # change to Vault address
-  namespace   = "admin"
-  token       = hcp_vault_cluster_admin_token.my_token.token               # change to valid Vault token
-  scope_id    = boundary_scope.project_aws.id
-}
-
-resource "boundary_credential_library_vault" "foo" {
-  name                = "foo"
-  description         = "My first Vault credential library!"
-  credential_store_id = boundary_credential_store_vault.my_store.id
-  path                = "kv/foo" # change to Vault backend path
-  http_method         = "GET"
-}
-
-resource "boundary_credential_library_vault" "bar" {
-  name                = "bar"
-  description         = "My second Vault credential library!"
-  credential_store_id = boundary_credential_store_vault.my_store.id
-  path                = "kv/bar" # change to Vault backend path
-  http_method         = "POST"
-  http_request_body   = <<EOT
-{
-  "key": "Value",
-}
-EOT
-}
-*/
