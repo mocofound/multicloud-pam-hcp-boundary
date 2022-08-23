@@ -1,11 +1,17 @@
 # hcp-boundary-vault-demo
 
 ## IMPORTANT
-1) manually create HCP Boundary cluster
+1) manually create HCP Boundary cluster.  Log in to grab password auth method id.
 
 2) rename .tfdummy file to .tf after initial run then run again to resolve hcp vault, boundary credential store and vault provider dependencies
 
 3) manually create boundary credential library with credential-type=ssh_private_key until it is added in tf provider
+
+4) brew install --cask google-cloud-sdk
+
+5) gcloud init
+
+6) gcloud config set compute/zone us-central1-a
 
 ## Setup
 Install Terraform >v1.0
@@ -19,3 +25,16 @@ terraform init
 terraform plan
 
 terraform apply
+
+## Error Message
+
+module.boundary.boundary_credential_store_vault.vault_cred_store: Creating...
+╷
+│ Error: error creating credential store: {"kind":"Internal","message":"credentialstores.(Service).createInRepo: unable to create credential store: vault.(Repository).CreateCredentialStore: vault token is not renewable, vault token issue: error #3012"}
+│ 
+│   with module.boundary.boundary_credential_store_vault.vault_cred_store,
+│   on modules/boundary/boundary-vault-config.tf line 1, in resource "boundary_credential_store_vault" "vault_cred_store":
+│    1: resource "boundary_credential_store_vault" "vault_cred_store" {
+│ 
+╵
+

@@ -9,21 +9,10 @@ resource "boundary_auth_method_oidc" "auth" {
   signing_algorithms     = ["RS256"]
   api_url_prefix         = var.boundary_controller_address      #"https://d2060e91-05ee-4e23-bb56-5ada2cbf7628.boundary.hashicorp.cloud"
   is_primary_for_scope   = true
-  #state                  = "active-public"
-	#callback_url           = "https://72a42559-c184-43ab-ac89-82dc40245e58.boundary.hashicorp.cloud/v1/auth-methods/oidc:authenticate:callback"
-}
-
-output "database_connection_string" {
-  value = vault_database_secret_backend_connection.postgres.postgresql[0].connection_url
-}
-
-output "database_name_from_vault_backend" {
-  value = vault_database_secret_backend_connection.postgres.name
-}
-
+ }
 
 /*
-#Alternatively, set primary auth method for scope so that users are created on the fly
+#Below boundary_account_oidc resource not required because we have set the oidc_auth_method as private on our scope
 resource "boundary_account_oidc" "oidc_user" {
   name           = "user1"
   description    = "OIDC account for user1"
@@ -39,7 +28,7 @@ resource "boundary_scope" "global" {
   global_scope = true
   scope_id     = "global"
   description  = "Global Scope"
-  name         = "Global"
+  name         = "global"
 }
 
 #Create organization scope within global
@@ -139,26 +128,27 @@ resource "boundary_role" "oidc_role_3" {
 }
 */
 
-resource "boundary_host_catalog_static" "foo" {
+
+resource "boundary_host_catalog_static" "aws_ssh" {
   name        = "aws_host_catalog"
   description = "test catalog"
   scope_id    = boundary_scope.project_aws.id
 }
 
-resource "boundary_host_static" "foo" {
+resource "boundary_host_static" "aws_ssh" {
   type            = "static"
-  name            = "awsec2_ssh_host_1"
-  host_catalog_id = boundary_host_catalog_static.foo.id
-  address         = aws_instance.hashicat.public_ip
+  name            = "aws_ec2_ssh_host_1"
+  host_catalog_id = boundary_host_catalog_static.aws_ssh.id
+  address         = var.aws_ec2_instance
 }
 
-resource "boundary_host_set_static" "foo" {
+resource "boundary_host_set_static" "aws_ssh" {
   type            = "static"
   name            = "aws_host_set"
-  host_catalog_id = boundary_host_catalog_static.foo.id
+  host_catalog_id = boundary_host_catalog_static.aws_ssh.id
 
   host_ids = [
-    boundary_host_static.foo.id,
+    boundary_host_static.aws_ssh.id,
   ]
 }
 
@@ -174,29 +164,29 @@ resource "boundary_host_set_static" "postgres" {
   host_catalog_id = boundary_host_catalog_static.postgres.id
 
   host_ids = [
-    boundary_host_static.postgres.id,
+    boundary_host_static.rds_postgres.id,
   ]
-}
-
-resource "boundary_host_static" "postgres" {
-  type            = "static"
-  name            = "postgres_host_1"
-  host_catalog_id = boundary_host_catalog_static.postgres.id
-  address         = aws_db_instance.rds.address
 }
 
 resource "boundary_host_static" "rds_postgres" {
   type            = "static"
   name            = "postgres_rds_host"
   host_catalog_id = boundary_host_catalog_static.postgres.id
-  address         = aws_db_instance.rds.address
+  address         = var.aws_rds_db
 }
 
 /*
+
+resource "boundary_host_static" "postgres" {
+  type            = "static"
+  name            = "postgres_host_1"
+  host_catalog_id = boundary_host_catalog_static.postgres.id
+  address         = var.aws_ec2_instance
+}
+
 resource "boundary_credential_store_static" "creds" {
   name        = "example_static_credential_store"
   description = "My first static credential store!"
   scope_id    = boundary_scope.project_aws.id
 }
 */
-

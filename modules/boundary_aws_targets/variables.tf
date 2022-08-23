@@ -1,6 +1,15 @@
+
+variable "aws_db_instance_login_name" {
+  default = "changeme"
+}
+
+variable "aws_db_instance_login_password" {
+  default = "changeme"
+}
+
 variable "prefix" {
   description = "This prefix will be included in the name of most resources."
-  default = "boundary-"
+  default = "boundary-poc-0"
 }
 
 variable "region" {
