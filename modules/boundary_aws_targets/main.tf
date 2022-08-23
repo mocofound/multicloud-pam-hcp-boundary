@@ -1,53 +1,4 @@
-provider "aws" {
-  region  = var.region
-}
-
-variable "prefix" {
-  description = "This prefix will be included in the name of most resources."
-  default = "boundary-"
-}
-
-variable "region" {
-  description = "The region where the resources are created."
-  default     = "us-east-1"
-}
-
-variable "address_space" {
-  description = "The address space that is used by the virtual network. You can supply more than one address space. Changing this forces a new resource to be created."
-  default     = "10.0.0.0/16"
-}
-
-variable "subnet_prefix" {
-  description = "The address prefix to use for the subnet."
-  default     = "10.0.10.0/24"
-}
-
-variable "instance_type" {
-  description = "Specifies the AWS instance type."
-  default     = "t2.micro"
-}
-
-variable "admin_username" {
-  description = "Administrator user name for mysql"
-  default     = "hashicorp"
-}
-
-variable "height" {
-  default     = "400"
-  description = "Image height in pixels."
-}
-
-variable "width" {
-  default     = "600"
-  description = "Image width in pixels."
-}
-
-variable "placeholder" {
-  default     = "placekitten.com"
-  description = "Image-as-a-service URL. Some other fun ones to try are fillmurray.com, placecage.com, placebeard.it, loremflickr.com, baconmockup.com, placeimg.com, placebear.com, placeskull.com, stevensegallery.com, placedog.net"
-}
-
-resource "aws_vpc" "hashicat" {
+resource "aws_vpc" "boundary_poc" {
   cidr_block           = var.address_space
   enable_dns_hostnames = true
 
@@ -57,8 +8,8 @@ resource "aws_vpc" "hashicat" {
   }
 }
 
-resource "aws_subnet" "hashicat" {
-  vpc_id     = aws_vpc.hashicat.id
+resource "aws_subnet" "boundary_poc" {
+  vpc_id     = aws_vpc.boundary_poc.id
   cidr_block = var.subnet_prefix
 
   tags = {
@@ -66,10 +17,10 @@ resource "aws_subnet" "hashicat" {
   }
 }
 
-resource "aws_security_group" "hashicat" {
+resource "aws_security_group" "boundary_poc" {
   name = "${var.prefix}-security-group"
 
-  vpc_id = aws_vpc.hashicat.id
+  vpc_id = aws_vpc.boundary_poc.id
 
   ingress {
     from_port   = 22
@@ -112,8 +63,8 @@ resource "aws_security_group" "hashicat" {
   }
 }
 
-resource "aws_internet_gateway" "hashicat" {
-  vpc_id = aws_vpc.hashicat.id
+resource "aws_internet_gateway" "boundary_poc" {
+  vpc_id = aws_vpc.boundary_poc.id
 
   tags = {
     Name = "${var.prefix}-internet-gateway"
@@ -122,28 +73,28 @@ resource "aws_internet_gateway" "hashicat" {
 
 /*
 resource "aws_nat_gateway" "example" {
-  allocation_id = aws_eip.hashicat.id
-  subnet_id     = aws_subnet.hashicat.id
+  allocation_id = aws_eip.boundary_poc.id
+  subnet_id     = aws_subnet.boundary_poc.id
 
   tags = {
     Name = "gw NAT"
   }
 
-  depends_on = [aws_internet_gateway.hashicat]
+  depends_on = [aws_internet_gateway.boundary_poc]
 }
 */
 
-resource "aws_route_table" "hashicat" {
-  vpc_id = aws_vpc.hashicat.id
+resource "aws_route_table" "boundary_poc" {
+  vpc_id = aws_vpc.boundary_poc.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.hashicat.id
+    gateway_id = aws_internet_gateway.boundary_poc.id
   }
 }
 /*
-resource "aws_route_table" "hashicat_private" {
-  vpc_id = aws_vpc.hashicat.id
+resource "aws_route_table" "boundary_poc_private" {
+  vpc_id = aws_vpc.boundary_poc.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -152,9 +103,9 @@ resource "aws_route_table" "hashicat_private" {
 }
 */
 
-resource "aws_route_table_association" "hashicat" {
-  subnet_id      = aws_subnet.hashicat.id
-  route_table_id = aws_route_table.hashicat.id
+resource "aws_route_table_association" "boundary_poc" {
+  subnet_id      = aws_subnet.boundary_poc.id
+  route_table_id = aws_route_table.boundary_poc.id
 }
 
 data "aws_ami" "ubuntu" {
@@ -174,26 +125,26 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_eip" "hashicat" {
-  instance = aws_instance.hashicat.id
+resource "aws_eip" "boundary_poc" {
+  instance = aws_instance.boundary_poc.id
   vpc      = true
 }
 
-resource "aws_eip_association" "hashicat" {
-  instance_id   = aws_instance.hashicat.id
-  allocation_id = aws_eip.hashicat.id
+resource "aws_eip_association" "boundary_poc" {
+  instance_id   = aws_instance.boundary_poc.id
+  allocation_id = aws_eip.boundary_poc.id
 }
 
-resource "aws_instance" "hashicat" {
+resource "aws_instance" "boundary_poc" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
-  key_name                    = aws_key_pair.hashicat.key_name
+  key_name                    = aws_key_pair.boundary_poc.key_name
   associate_public_ip_address = true
-  subnet_id                   = aws_subnet.hashicat.id
-  vpc_security_group_ids      = [aws_security_group.hashicat.id]
+  subnet_id                   = aws_subnet.boundary_poc.id
+  vpc_security_group_ids      = [aws_security_group.boundary_poc.id]
 
   tags = {
-    Name = "${var.prefix}-hashicat-instance"
+    Name = "${var.prefix}-boundary_poc-instance"
   }
 }
 
@@ -210,7 +161,7 @@ resource "aws_instance" "hashicat" {
 # Add execute permissions to our scripts.
 # Run the deploy_app.sh script.
 resource "null_resource" "configure-cat-app" {
-  depends_on = [aws_eip_association.hashicat]
+  depends_on = [aws_eip_association.boundary_poc]
 
   triggers = {
     build_number = timestamp()
@@ -223,8 +174,8 @@ resource "null_resource" "configure-cat-app" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = tls_private_key.hashicat.private_key_pem
-      host        = aws_eip.hashicat.public_ip
+      private_key = tls_private_key.boundary_poc.private_key_pem
+      host        = aws_eip.boundary_poc.public_ip
     }
   }
   /*
@@ -253,14 +204,6 @@ resource "null_resource" "configure-cat-app" {
 #Postgres Info: https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart
  provisioner "remote-exec" {
     inline = [
-      "sudo apt -y install postgresql postgresql-contrib",
-      "sudo chown -R ubuntu:ubuntu /etc/postgresql/10/main/postgresql.conf", 
-      "echo \"listen_addresses = '*'\" >> /etc/postgresql/10/main/postgresql.conf",
-      "sudo chown -R ubuntu:ubuntu /etc/postgresql/10/main/pg_hba.conf", 
-      "echo \"host    all             all             0.0.0.0/0                  md5\" >> /etc/postgresql/10/main/pg_hba.conf",
-      "echo \"host    all             all             ::/0                       md5\" >> /etc/postgresql/10/main/pg_hba.conf",
-      "sudo systemctl stop postgresql.service",
-      "sudo systemctl start postgresql.service",
       "sudo apt -y update",
       "sudo apt -y install cowsay",
       "cowsay Mooooooooooo!",
@@ -270,15 +213,15 @@ resource "null_resource" "configure-cat-app" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = tls_private_key.hashicat.private_key_pem
-      host        = aws_eip.hashicat.public_ip
+      private_key = tls_private_key.boundary_poc.private_key_pem
+      host        = aws_eip.boundary_poc.public_ip
     }
     
   }
   
 }
 
-resource "tls_private_key" "hashicat" {
+resource "tls_private_key" "boundary_poc" {
   algorithm = "RSA"
 }
 
@@ -286,24 +229,24 @@ locals {
   private_key_filename = "${var.prefix}-ssh-key.pem"
 }
 
-resource "aws_key_pair" "hashicat" {
+resource "aws_key_pair" "boundary_poc" {
   key_name   = local.private_key_filename
-  public_key = tls_private_key.hashicat.public_key_openssh
+  public_key = tls_private_key.boundary_poc.public_key_openssh
 }
 
 output "public_url" {
-  value = "http://${aws_eip.hashicat.public_dns}"
+  value = "http://${aws_eip.boundary_poc.public_dns}"
 }
 
 output "public_ip" {
-  value = "http://${aws_eip.hashicat.public_ip}"
+  value = "http://${aws_eip.boundary_poc.public_ip}"
 }
 
 output "aws_key_pair" {
-  value = aws_key_pair.hashicat
+  value = aws_key_pair.boundary_poc
 }
 
 output "ssh_private_key" {
   sensitive = true
-  value = tls_private_key.hashicat.private_key_pem
+  value = tls_private_key.boundary_poc.private_key_pem
 }

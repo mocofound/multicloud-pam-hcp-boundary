@@ -13,15 +13,6 @@ variable "boundary_controller_address" {
 variable "boundary_password_auth_method_id" {
   default = "changeme"
 }
-
-variable "hcp_client_id" {
-  default = "changeme"
-}
-
-variable "hcp_client_secret" {
-  default = "changeme"
-}
-
 variable "aad_client_id" {
   default = "changeme"
 }
@@ -34,35 +25,18 @@ variable "aad_tenant_id" {
   default = "changeme"
 }
 
-variable "region" {
-  description = "The region where the resources are created."
-  default     = "us-east-1"
-}
-
-variable "hcp_vault_namespace" {
-  default = "admin"
-}
-
-variable "hcp_vault_tier" {
-  default = "development"
-}
-
-variable "aws_db_instance_login_name" {
+variable "vault_address" {
   default = "changeme"
 }
 
-variable "aws_db_instance_login_password" {
+variable "vault_token" {
   default = "changeme"
 }
 
-variable "gcp_region" {
+variable "aws_ec2_instance" {
   default = "changeme"
 }
 
-variable "gcp_project_id" {
-  default = "changeme"
-}
-
-variable "prefix" {
+variable "aws_rds_db" {
   default = "changeme"
 }
