@@ -13,6 +13,9 @@
 
 6) gcloud config set compute/zone us-central1-a
 
+## OIDC Azure AD
+Helpful Video: https://www.youtube.com/watch?v=glZR3e9RQAI
+
 ## Setup
 Install Terraform >v1.0
 

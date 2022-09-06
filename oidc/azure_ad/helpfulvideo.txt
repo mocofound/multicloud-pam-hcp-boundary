@@ -1,0 +1,3 @@
+https://www.youtube.com/watch?v=glZR3e9RQAI
+
+Configuring boundary managed groups with Azure AD

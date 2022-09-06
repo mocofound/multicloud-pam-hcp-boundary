@@ -1,6 +1,6 @@
 resource "hcp_vault_cluster" "boundary_vault_cluster" {
-  #cluster_id = "${var.prefix}-vault-cluster"
-  cluster_id = "hcp-tf-boundary-vault-cluster"
+  cluster_id = "${var.prefix}-vault-cluster"
+  #cluster_id = "hcp-tf-boundary-vault-cluster"
   hvn_id = var.hcp_boundary_hvn_id
   tier = var.hcp_vault_tier
   public_endpoint = true
