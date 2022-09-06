@@ -3,15 +3,13 @@
 ## IMPORTANT
 1) manually create HCP Boundary cluster.  Log in to grab password auth method id.
 
-2) rename .tfdummy file to .tf after initial run then run again to resolve hcp vault, boundary credential store and vault provider dependencies
+2) rename .tfdummy file(s) to .tf after initial run then run again to resolve hcp vault, boundary credential store and vault provider dependencies.  
 
-3) manually create boundary credential library with credential-type=ssh_private_key until it is added in tf provider
+3) brew install --cask google-cloud-sdk
 
-4) brew install --cask google-cloud-sdk
+4) gcloud init
 
-5) gcloud init
-
-6) gcloud config set compute/zone us-central1-a
+5) gcloud config set compute/zone us-central1-a
 
 ## OIDC Azure AD
 Helpful Video: https://www.youtube.com/watch?v=glZR3e9RQAI
