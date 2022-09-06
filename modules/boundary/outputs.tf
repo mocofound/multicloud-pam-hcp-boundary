@@ -18,3 +18,6 @@ output "boundary_host_catalog_static_postgres" {
   value = boundary_host_catalog_static.postgres.id
 }
 
+output "boundary_oidc_auth_method_id" {
+  value = boundary_auth_method_oidc.auth.id
+}

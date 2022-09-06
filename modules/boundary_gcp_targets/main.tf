@@ -1,18 +1,14 @@
-provider "google" {
-  project = var.gcp_project_id
-  region  = var.gcp_region
-}
-
 # VPC
 resource "google_compute_network" "vpc" {
-  name                    = "${var.project_id}-vpc"
+  name                    = "${var.prefix}-${var.project_id}-vpc"
   auto_create_subnetworks = "false"
+  project                 = var.project_id
 }
 
 # Subnet
 resource "google_compute_subnetwork" "subnet" {
-  name          = "${var.project_id}-subnet"
-  region        = var.region
+  name          = "${var.prefix}-${var.project_id}-subnet"
+  region        = var.gcp_region
   network       = google_compute_network.vpc.name
   ip_cidr_range = "10.10.0.0/24"
 }

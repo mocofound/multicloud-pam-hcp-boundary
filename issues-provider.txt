@@ -1,0 +1,50 @@
+│ Error: error deleting "kv/data/my-secret" from Vault: "Error making API request.\n\nNamespace: admin\nURL: DELETE https://hcp-tf-boundary-vault-cluster-public-vault-4ad064f5.39fca11b.z1.hashicorp.cloud:8200/v1/kv/data/my-secret\nCode: 404. Errors:\n\n* no handler for route \"kv/data/my-secret\". route entry not found."
+│ 
+│ 
+
+
+----- 2
+### Terraform Version
+v1.2.6
+
+### Affected Resource(s)
+Please list the resources as a list, for example:
+- boundary_credential_store_vault
+
+### Terraform Configuration Files
+```hcl
+resource "boundary_credential_store_vault" "vault_cred_store" {
+  name        = var.credential_store_name
+  description = var.credential_store_description
+  address     = var.vault_address
+  namespace   = var.vault_namespace
+  token       = var.periodic_no_parent_renewable_vault_token  
+  scope_id    = boundary_scope.project_aws.id
+}
+
+variable "credential_store_name" {
+  default = "boundary_cred_store_2"
+}
+```
+
+### Debug Output
+[Gist Output](https://gist.github.com/mocofound/01813a9c37b3d7ca0b0926822ebf67f4)
+
+### Panic Output
+-none-
+
+### Expected Behavior
+Expected Boundary Terraform Provider to successfully provision a new
+
+### Actual Behavior
+What actually happened?
+
+### Steps to Reproduce
+Please list the steps required to reproduce the issue, for example:
+1. `terraform apply`
+
+### Important Factoids
+
+
+### References
+none

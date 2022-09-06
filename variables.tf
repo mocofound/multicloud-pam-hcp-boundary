@@ -39,7 +39,7 @@ variable "region" {
   default     = "us-east-1"
 }
 
-variable "hcp_vault_namespace" {
+variable "vault_namespace" {
   default = "admin"
 }
 
@@ -61,6 +61,14 @@ variable "gcp_region" {
 
 variable "gcp_project_id" {
   default = "changeme"
+}
+
+variable "gke_username" {
+  
+}
+
+variable "gke_password" {
+  
 }
 
 variable "prefix" {

@@ -1,4 +1,8 @@
-variable "gcp_project_id" {
+variable "prefix" {
+  description = "project id"
+}
+
+variable "project_id" {
   description = "project id"
 }
 

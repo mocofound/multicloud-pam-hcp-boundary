@@ -115,12 +115,16 @@ resource "vault_database_secret_backend_role" "role" {
   db_name             = vault_database_secret_backend_connection.postgres.name
   creation_statements = ["CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"]
   #namespace=var.vault_namespace
+  depends_on = [
+    vault_mount.db
+  ]
 }
 
 resource "vault_mount" "kv2" {
   path        = "kv"
   type        = "kv-v2"
   description = "kv-v2 secret engine"
+  #namespace = var.vault_namespace
 }
 
 resource "vault_generic_secret" "ssh_key" {
@@ -130,6 +134,9 @@ resource "vault_generic_secret" "ssh_key" {
   "username": "ubuntu",
   "private_key": "${var.boundary_aws_targets.ssh_private_key_pem}"
 })
+depends_on = [
+  vault_mount.kv2,
+]
 }
 
 output "database_connection_string" {

@@ -33,10 +33,26 @@ variable "vault_token" {
   default = "changeme"
 }
 
+variable "vault_namespace" {
+  default = "vault_namespace"
+}
+
+variable "periodic_no_parent_renewable_vault_token" {
+  default = "boundary_token"
+}
+
 variable "aws_ec2_instance" {
   default = "changeme"
 }
 
 variable "aws_rds_db" {
   default = "changeme"
+}
+
+variable "credential_store_description" {
+    default = "boundary_cred_store_2"
+}
+
+variable "boundary_scope_id" {
+    default = "changeme"
 }

@@ -1,9 +1,9 @@
-output "region" {
-  value       = var.region
+output "gcp_region" {
+  value       = var.gcp_region
   description = "GCloud Region"
 }
 
-output "project_id" {
+output "gcp_project_id" {
   value       = var.project_id
   description = "GCloud Project ID"
 }

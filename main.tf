@@ -7,7 +7,7 @@ terraform {
     }
     boundary = {
       source = "hashicorp/boundary"
-      version = "1.0.10"
+      version = "1.0.11"
     }
     aws = {
       source  = "hashicorp/aws"
@@ -15,7 +15,7 @@ terraform {
     }
     google = {
       source  = "hashicorp/google"
-      version = "4.33.0"
+      version = "~>4.33.0"
     }
     vault = {
       source = "hashicorp/vault"
@@ -52,38 +52,13 @@ module "hcp-boundary" {
 }
 */
 
-provider "vault" { 
-  #address = hcp_vault_cluster.boundary_vault_cluster.vault_public_endpoint_url
-  #namespace = var.hcp_vault_namespace
-  #token = hcp_vault_cluster_admin_token.my_token.token
-  add_address_to_env = true
-  address = module.hcp_vault.hcp_vault_cluster_public_ip
-  token = module.hcp_vault.hcp_vault_cluster_admin_token
-  namespace = var.hcp_vault_namespace
+provider "aws" {
+  region  = var.region
 }
 
-module "boundary" {
-  source = "./modules/boundary"
-  vault_address                = module.hcp_vault.hcp_vault_cluster_public_ip
-  vault_token                  = module.hcp_vault.hcp_vault_cluster_admin_token
-  aws_ec2_instance             = module.boundary_aws_targets.aws_ec2_instance.public_dns
-  aws_rds_db                   = module.boundary_aws_targets.aws_rds_db.address
-  boundary_controller_address  = var.boundary_controller_address
-  aad_client_id                = var.aad_client_id
-  aad_client_secret_value      = var.aad_client_secret_value
-  aad_tenant_id                = var.aad_tenant_id
-  depends_on = [
-    module.hcp_vault,
-    module.boundary_aws_targets
-  ]
-}
-
-
-provider "boundary" {
-  addr                             = var.boundary_controller_address
-  auth_method_id                   = var.boundary_password_auth_method_id
-  password_auth_method_login_name  = var.boundary_login_name        
-  password_auth_method_password    = var.boundary_login_password
+provider "google" {
+  region  = var.gcp_region
+  project = var.gcp_project_id
 }
 
 module "boundary_aws_targets" {
@@ -95,10 +70,3 @@ module "boundary_aws_targets" {
   ]
 }
 
-provider "aws" {
-  region  = var.region
-}
-
-provider "google" {
-  region  = var.gcp_region
-}
