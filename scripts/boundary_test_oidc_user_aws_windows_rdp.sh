@@ -11,9 +11,10 @@ echo ${boundary_oidc_auth_method_id}
 
 boundary authenticate oidc -auth-method-id ${boundary_oidc_auth_method_id}
 sleep 2
-boundary targets list -recursive
-echo "run \du command at postgresdb=> prompt to list users"\du
-boundary connect ssh -target-name aws_ec2_ssh_target -target-scope-name project_aws
+#boundary targets list -recursive
+#boundary connect rdp -target-name aws_windows_rdp_target -target-scope-name project_aws
+
+boundary connect rdp -target-name aws_windows_rdp_target -target-scope-name project_aws
 
 #chmod 600 ./boundary-key-pair.pem 
 #ssh -i ./boundary-key-pair.pem ubuntu@ec2-34-227-187-120.compute-1.amazonaws.com

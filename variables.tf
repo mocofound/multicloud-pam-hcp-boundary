@@ -1,3 +1,8 @@
+
+variable "prefix" {
+  default = "changeme"
+}
+
 variable "boundary_login_name" {
   default = "changeme"
 }
@@ -64,13 +69,17 @@ variable "gcp_project_id" {
 }
 
 variable "gke_username" {
-  
+  default = "changeme"
 }
 
 variable "gke_password" {
-  
+  default = "changeme"
 }
 
-variable "prefix" {
+variable "azure_region" {
+  default = "us-central1"
+}
+
+variable "azure_resource_group_name" {
   default = "changeme"
 }

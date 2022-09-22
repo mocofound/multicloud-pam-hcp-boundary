@@ -6,7 +6,7 @@ resource "vault_token_auth_backend_role" "boundary_role" {
   orphan                 = true
   token_period           = "86400"
   renewable              = true
-  token_explicit_max_ttl = "115200"
+  #token_explicit_max_ttl = ""
   path_suffix            = "path-suffix"
 }
 
@@ -21,6 +21,36 @@ resource "vault_token" "boundary_token" {
   #policies = []
   ttl = "25h"
   
+
+  renew_min_lease = 43200
+  renew_increment = 86400
+
+  metadata = {
+    "purpose" = "boundary-service-account"
+  }
+  depends_on = [
+    vault_token_auth_backend_role.boundary_role
+  ]
+}
+resource "vault_token_auth_backend_role" "boundary_azure_role" {
+  role_name              = "boundary_azure_role"
+  allowed_policies       = [vault_policy.controller.name, vault_policy.broker.name]
+  disallowed_policies    = ["default"]
+  allowed_entity_aliases = []
+  orphan                 = true
+  token_period           = "86400"
+  renewable              = true
+  #token_explicit_max_ttl = ""
+  path_suffix            = "path-suffix"
+}
+
+resource "vault_token" "boundary_token_azure" {
+  role_name = "boundary_azure_role"
+  renewable = true
+  period = "30d"
+  no_default_policy = true
+  policies = [vault_policy.controller.name, vault_policy.broker.name]
+  ttl = "25h"
 
   renew_min_lease = 43200
   renew_increment = 86400
@@ -99,7 +129,7 @@ resource "vault_database_secret_backend_connection" "postgres" {
   allowed_roles = ["postgres_db_role"]
   #maybe /database should be /${aws_db_instance.rds.db_name?}
   postgresql {
-    connection_url = "postgres://${var.aws_db_instance_login_name}:${var.aws_db_instance_login_password}@${var.boundary_aws_targets.rds_db_address}:5432/${var.boundary_aws_targets.rds_db_name}?sslmode=disable"
+    connection_url = "postgres://${var.aws_db_instance_login_name}:${var.aws_db_instance_login_password}@${var.boundary_aws_hosts.rds_db_address}:5432/${var.boundary_aws_hosts.rds_db_name}?sslmode=disable"
   }
   #postgresql {
   #  connection_url = "postgres://postgres:password@${aws_instance.boundary_poc.public_dns}:5432/database?sslmode=disable"
@@ -132,7 +162,7 @@ resource "vault_generic_secret" "ssh_key" {
   #namespace = var.vault_namespace
   data_json = jsonencode({
   "username": "ubuntu",
-  "private_key": "${var.boundary_aws_targets.ssh_private_key_pem}"
+  "private_key": "${var.boundary_aws_hosts.ssh_private_key_pem}"
 })
 depends_on = [
   vault_mount.kv2,

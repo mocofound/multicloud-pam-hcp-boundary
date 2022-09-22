@@ -47,8 +47,8 @@ module "hcp-boundary" {
 /*
 module "vault" {
   source = "./modules/vault"
-  boundary_aws_targets = module.boundary_aws_targets
-  #ssh_key = module.boundary_aws_targets.ssh_private_key
+  boundary_aws_hosts = module.boundary_aws_hosts
+  #ssh_key = module.boundary_aws_hosts.ssh_private_key
   aws_db_instance_login_name = var.aws_db_instance_login_name
   aws_db_instance_login_password =  var.aws_db_instance_login_password
     
@@ -72,8 +72,8 @@ module "boundary" {
   source = "./modules/boundary"
   vault_address = module.hcp_vault.hcp_vault_cluster_public_ip
   vault_token = module.hcp_vault.hcp_vault_cluster_admin_token
-  aws_ec2_instance = module.boundary_aws_targets.aws_ec2_instance
-  aws_rds_db = module.boundary_aws_targets.aws_rds_db
+  aws_ec2_instance = module.boundary_aws_hosts.aws_ec2_instance
+  aws_rds_db = module.boundary_aws_hosts.aws_rds_db
   
   depends_on = [
     module.hcp_vault
@@ -88,8 +88,8 @@ provider "boundary" {
   password_auth_method_password   = var.boundary_login_password
 }
 
-module "boundary_aws_targets" {
-  source = "./modules/boundary_aws_targets"
+module "boundary_aws_hosts" {
+  source = "./modules/boundary_aws_hosts"
 
   depends_on = [
 

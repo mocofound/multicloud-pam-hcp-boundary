@@ -10,7 +10,12 @@ echo ${boundary_oidc_auth_method_id}
 
 boundary authenticate oidc -auth-method-id ${boundary_oidc_auth_method_id}
 sleep 2
+
+
+boundary connect postgres -target-name postgres_db_target -target-scope-name project_aws -dbname rdsdb -- -exec "\du"
+
 boundary connect postgres -target-name postgres_db_target -target-scope-name project_aws -dbname rdsdb
+
 
 #List All Postgres Users and show dynamically created vault users
 #rdsdb=> \du

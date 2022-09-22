@@ -3,15 +3,19 @@ terraform {
   required_providers {
     hcp = {
       source  = "hashicorp/hcp"
-      version = "~> 0.40.0"
+      version = "~>0.44.0"
     }
     boundary = {
       source = "hashicorp/boundary"
-      version = "1.0.11"
+      version = "~>1.0.12"
     }
     aws = {
       source  = "hashicorp/aws"
       version = "=4.26.0"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~>3.22.0"
     }
     google = {
       source  = "hashicorp/google"
@@ -41,16 +45,27 @@ module "hcp_vault" {
   ]
 }
 
- /*
- #Terraform provider does not allow creation of hcp boundary clusters yet
- #For now, Use HCP cloud portal to manually create cluster
-module "hcp-boundary" {
-  source = "./modules/hcp/hcp-boundary"
+ 
+ module "hcp_boundary_cluster" {
+  source = "./modules/hcp/hcp_boundary_cluster"
+  cluster_id = "${var.prefix}-boundary-cluster"
+  username   = var.boundary_login_name
+  password   = var.boundary_login_password
+
   depends_on = [
     module.hcp_vault
   ]
 }
-*/
+
+// Configure the HCP provider
+provider "hcp" {
+#authenticating: https://registry.terraform.io/providers/hashicorp/hcp/latest/docs/guides/auth
+#Alternatively, use environment variables
+#export HCP_CLIENT_ID="2324242"
+#export HCP_CLIENT_SECRET="1234xyz"
+client_id = var.hcp_client_id
+client_secret = var.hcp_client_secret
+}
 
 provider "aws" {
   region  = var.region
@@ -61,8 +76,12 @@ provider "google" {
   project = var.gcp_project_id
 }
 
-module "boundary_aws_targets" {
-  source = "./modules/boundary_aws_targets"
+provider "azurerm" {
+  features {}
+}
+
+module "boundary_aws_hosts" {
+  source = "./modules/boundary_aws_hosts"
   prefix = var.prefix
   aws_db_instance_login_name = var.aws_db_instance_login_name
   aws_db_instance_login_password = var.aws_db_instance_login_password
@@ -70,3 +89,7 @@ module "boundary_aws_targets" {
   ]
 }
 
+# module "boundary_azure_hosts" {
+#   source = "./modules/boundary_azure_hosts"
+#   prefix = var.prefix
+# }
