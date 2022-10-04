@@ -16,3 +16,7 @@ output "aws_rds_db" {
 output "aws_ec2_instance" {
   value = aws_instance.boundary_poc
 }
+
+output "aws_ec2_windows_instance" {
+  value = aws_instance.windows-server
+}

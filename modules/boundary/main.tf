@@ -12,18 +12,6 @@ resource "boundary_auth_method_oidc" "auth" {
   is_primary_for_scope   = true
  }
 
-/*
-#Below boundary_account_oidc resource not required because we have set the oidc_auth_method as private on our scope
-resource "boundary_account_oidc" "oidc_user" {
-  name           = "user1"
-  description    = "OIDC account for user1"
-  auth_method_id = boundary_auth_method_oidc.auth.id
-  issuer  = "https://sts.windows.net/${var.aad_tenant_id}/"
-  #AAD APP Object ID
-  subject = "1052e6ac-3ebd-44f0-8c8d-589a0d008d2a"
-}
-*/
-
 #Creating Global Scope
 resource "boundary_scope" "global" {
   global_scope = true
@@ -48,6 +36,14 @@ resource "boundary_scope" "project_aws" {
   scope_id               = boundary_scope.org.id
   auto_create_admin_role = true
   auto_create_default_role = true
+}
+
+resource "boundary_managed_group" "idp_aws_users" {
+  name           = "idp_aws_users"
+  description    = "AWS users as defined by external IDP/auth method"
+
+  auth_method_id = boundary_auth_method_oidc.auth.id
+  filter         = "\"9e587b96-d37a-44a9-b862-4868f6deebc7\" in \"/token/groups\""
 }
 
 #Creating an project scope within an organization:
@@ -77,13 +73,6 @@ resource "boundary_scope" "project_onprem" {
   auto_create_default_role = true
 }
 
-resource "boundary_managed_group" "idp_aws_users" {
-  name           = "idp_aws_users"
-  description    = "AWS users as defined by external IDP/auth method"
-
-  auth_method_id = boundary_auth_method_oidc.auth.id
-  filter         = "\"onmicrosoft.com\" in \"/userinfo/upn\""
-}
 
 resource "boundary_managed_group" "idp_gcp_users" {
   name           = "idp_gcp_users"
@@ -92,6 +81,50 @@ resource "boundary_managed_group" "idp_gcp_users" {
   #Below uses AAD groupid, which could be a module output from AAD/oidc module
   filter         = "\"89fa53c6-bdcb-4dd1-8ada-0387296f9918\" in \"/token/groups\""
 }
+
+resource "boundary_managed_group" "idp_azure_users" {
+  name           = "idp_azure_users"
+  description    = "Azure users as defined by external IDP/auth method"
+  auth_method_id = boundary_auth_method_oidc.auth.id
+  #Below uses AAD groupid, which could be a module output from AAD/oidc module
+  filter         = "\"c07786ab-4b7e-4078-a393-9b3be91df830\" in \"/token/groups\""
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# resource "boundary_managed_group" "idp_azure_users" {
+#   name           = "idp_azure_users"
+#   description    = "Azure users as defined by external IDP/auth method"
+#   auth_method_id = boundary_auth_method_oidc.auth.id
+#   #Below uses AAD groupid, which could be a module output from AAD/oidc module
+#   filter         = "\"objectID for Windows Read-Only Access Group \" in \"/token/groups\""
+# }
+
+# resource "boundary_managed_group" "idp_azure_users" {
+#   name           = "idp_azure_users"
+#   description    = "Azure users as defined by external IDP/auth method"
+#   auth_method_id = boundary_auth_method_oidc.auth.id
+#   #Below uses AAD groupid, which could be a module output from AAD/oidc module
+#   filter         = "\"objectID for Windows Admin Access Group \" in \"/token/groups\""
+# }
+
+
+
+
 
 resource "boundary_role" "oidc_role_1" {
   name          = "List and Read"
@@ -113,89 +146,10 @@ resource "boundary_role" "oidc_role_100" {
   scope_id      = boundary_scope.project_gcp.id
 }
 
-/*
-resource "boundary_role" "oidc_role_2" {
+resource "boundary_role" "boundary_azure_role" {
   name          = "List and Read"
   description   = "List and read role"
-  principal_ids = [boundary_managed_group.idp_aws_users.id]
-  #TODO: Filter type down from * to be more specific
-  #  grant_strings = ["id=*;type=*;actions=list,read"]
-  grant_strings = ["id=*;type=*;actions=*"]
-  scope_id      = boundary_scope.org.id
-  #grant_scope_id = boundary_scope.global.scope_id
+  principal_ids = [boundary_managed_group.idp_azure_users.id]
+    grant_strings = ["id=*;type=*;actions=*"]
+  scope_id      = boundary_scope.project_azure.id
 }
-
-
-resource "boundary_role" "oidc_role_3" {
-  name          = "List and Read global"
-  description   = "List and read role"
-  principal_ids = [boundary_managed_group.idp_aws_users.id]
-  #TODO: Filter type down from * to be more specific
-  #  grant_strings = ["id=*;type=*;actions=list,read"]
-  grant_strings = ["id=*;type=*;actions=*"]
-  scope_id      = boundary_scope.global.id
-}
-*/
-
-
-resource "boundary_host_catalog_static" "aws_ssh" {
-  name        = "aws_host_catalog"
-  description = "test catalog"
-  scope_id    = boundary_scope.project_aws.id
-}
-
-resource "boundary_host_static" "aws_ssh" {
-  type            = "static"
-  name            = "aws_ec2_ssh_host_1"
-  host_catalog_id = boundary_host_catalog_static.aws_ssh.id
-  address         = var.aws_ec2_instance
-}
-
-resource "boundary_host_set_static" "aws_ssh" {
-  type            = "static"
-  name            = "aws_host_set"
-  host_catalog_id = boundary_host_catalog_static.aws_ssh.id
-
-  host_ids = [
-    boundary_host_static.aws_ssh.id,
-  ]
-}
-
-resource "boundary_host_catalog_static" "postgres" {
-  name        = "postgres_host_catalog"
-  description = "postgres host catalog"
-  scope_id    = boundary_scope.project_aws.id
-}
-
-resource "boundary_host_set_static" "postgres" {
-  type            = "static"
-  name            = "postgres_host_set"
-  host_catalog_id = boundary_host_catalog_static.postgres.id
-
-  host_ids = [
-    boundary_host_static.rds_postgres.id,
-  ]
-}
-
-resource "boundary_host_static" "rds_postgres" {
-  type            = "static"
-  name            = "postgres_rds_host"
-  host_catalog_id = boundary_host_catalog_static.postgres.id
-  address         = var.aws_rds_db
-}
-
-/*
-
-resource "boundary_host_static" "postgres" {
-  type            = "static"
-  name            = "postgres_host_1"
-  host_catalog_id = boundary_host_catalog_static.postgres.id
-  address         = var.aws_ec2_instance
-}
-
-resource "boundary_credential_store_static" "creds" {
-  name        = "example_static_credential_store"
-  description = "My first static credential store!"
-  scope_id    = boundary_scope.project_aws.id
-}
-*/

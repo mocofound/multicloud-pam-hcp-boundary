@@ -1,5 +1,5 @@
-module "boundary_gcp_targets" {
-  source = "./modules/boundary_gcp_targets"
+module "boundary_gcp_hosts" {
+  source = "./modules/boundary_gcp_hosts"
 project_id = var.gcp_project_id
 gcp_region = var.gcp_region
 gke_username = var.gke_username

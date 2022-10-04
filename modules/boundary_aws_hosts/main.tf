@@ -1,9 +1,14 @@
+locals  {
+  boundary_egress_cidr_ranges = ["35.168.53.57/32","34.232.124.174/32","44.194.155.74/32","0.0.0.0/0"]
+  #boundary_egress_cidr_ranges = ["35.168.53.57/32","34.232.124.174/32","44.194.155.74/32"]
+}
+
 resource "aws_vpc" "boundary_poc" {
   cidr_block           = var.address_space
   enable_dns_hostnames = true
 
   tags = {
-    name = "${var.prefix}-vpc-${var.region}"
+    Name = "${var.prefix}-vpc-${var.region}"
     environment = "Production"
   }
 }
@@ -13,7 +18,7 @@ resource "aws_subnet" "boundary_poc" {
   cidr_block = var.subnet_prefix
 
   tags = {
-    name = "${var.prefix}-subnet"
+    Name = "${var.prefix}-subnet"
   }
 }
 
@@ -26,28 +31,36 @@ resource "aws_security_group" "boundary_poc" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.boundary_egress_cidr_ranges
+  }
+
+  ingress {
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = local.boundary_egress_cidr_ranges
+    description = "Allow incoming RDP connections"
   }
 
   ingress {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.boundary_egress_cidr_ranges
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 9201
+    to_port     = 9201
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.boundary_egress_cidr_ranges
   }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
+    from_port   = 9202
+    to_port     = 9202
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.boundary_egress_cidr_ranges
   }
 
   egress {
@@ -128,6 +141,10 @@ data "aws_ami" "ubuntu" {
 resource "aws_eip" "boundary_poc" {
   instance = aws_instance.boundary_poc.id
   vpc      = true
+
+  tags = {
+    Name = "${var.prefix}-eip"
+  }
 }
 
 resource "aws_eip_association" "boundary_poc" {
@@ -144,7 +161,59 @@ resource "aws_instance" "boundary_poc" {
   vpc_security_group_ids      = [aws_security_group.boundary_poc.id]
 
   tags = {
-    Name = "${var.prefix}-boundary_poc-instance"
+    Name = "${var.prefix}-instance"
+  }
+}
+
+resource "aws_eip_association" "hcp_worker" {
+  instance_id   = aws_instance.hcp_worker.id
+  allocation_id = aws_eip.hcp_worker.id
+}
+
+resource "aws_eip" "hcp_worker" {
+  instance = aws_instance.hcp_worker.id
+  vpc      = true
+
+  tags = {
+    Name = "${var.prefix}-hcp-worker-eip"
+  }
+}
+
+resource "aws_instance" "hcp_worker" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type
+  key_name                    = aws_key_pair.boundary_poc.key_name
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.boundary_poc.id
+  vpc_security_group_ids      = [aws_security_group.boundary_poc.id]
+  user_data =  <<CUSTOM_DATA
+  #!/bin/bash
+  mkdir /home/ubuntu/boundary/ && cd /home/ubuntu/boundary/
+  wget -q https://releases.hashicorp.com/boundary-worker/0.10.5+hcp/boundary-worker_0.10.5+hcp_linux_amd64.zip ;\
+  sudo apt-get update && sudo apt-get install unzip ;\
+  unzip *.zip
+  cat << EOF > /home/ubuntu/boundary/pki-worker.hcl
+  disable_mlock = true
+  hcp_boundary_cluster_id = "7fd7b4f5-f38a-4570-9829-8bbc07b6b5a8"
+  listener "tcp" {
+    address = "0.0.0.0:9202"
+    purpose = "proxy"
+  }
+  worker {
+    public_addr = "ec2-3-216-70-46.compute-1.amazonaws.com"
+    auth_storage_path = "/home/ubuntu/boundary/worker1"
+    tags {
+      type = ["worker", "dev", "aws"]
+    }
+  }
+EOF
+
+  nohup ./boundary-worker server -config="/home/ubuntu/boundary/pki-worker.hcl" -log-level="debug">> /home/ubuntu/boundary/output.txt &
+
+CUSTOM_DATA
+
+  tags = {
+    Name = "${var.prefix}-hcp-worker-instance"
   }
 }
 
@@ -167,17 +236,17 @@ resource "null_resource" "configure-cat-app" {
     build_number = timestamp()
   }
 
-  provisioner "file" {
-    source      = "files/"
-    destination = "/home/ubuntu/"
+  # provisioner "file" {
+  #   source      = "files/"
+  #   destination = "/home/ubuntu/"
 
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.boundary_poc.private_key_pem
-      host        = aws_eip.boundary_poc.public_ip
-    }
-  }
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ubuntu"
+  #     private_key = tls_private_key.boundary_poc.private_key_pem
+  #     host        = aws_eip.boundary_poc.public_ip
+  #   }
+  # }
   /*
       "sudo apt -y install postgresql postgresql-contrib",
       "sudo -u postgres psql",
@@ -202,22 +271,22 @@ resource "null_resource" "configure-cat-app" {
 
   */    
 #Postgres Info: https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart
- provisioner "remote-exec" {
-    inline = [
-      "sudo apt -y update",
-      "sudo apt -y install cowsay",
-      "cowsay Mooooooooooo!",
+#  provisioner "remote-exec" {
+#     inline = [
+#       "sudo apt -y update",
+#       "sudo apt -y install cowsay",
+#       "cowsay Mooooooooooo!",
       
-    ]
+#     ]
 
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.boundary_poc.private_key_pem
-      host        = aws_eip.boundary_poc.public_ip
-    }
+#     connection {
+#       type        = "ssh"
+#       user        = "ubuntu"
+#       private_key = tls_private_key.boundary_poc.private_key_pem
+#       host        = aws_eip.boundary_poc.public_ip
+#     }
     
-  }
+#   }
   
 }
 

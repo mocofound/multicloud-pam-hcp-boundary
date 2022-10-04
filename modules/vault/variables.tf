@@ -8,7 +8,7 @@ variable "vault_token" {
   default = "changeme"
 }
 
-variable "boundary_aws_targets" {
+variable "boundary_aws_hosts" {
   description = ""
 }
 
