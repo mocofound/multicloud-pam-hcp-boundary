@@ -3,7 +3,6 @@
 ![HCP Boundary](./assets/Boundary_Diagram_HCP_Workers.png)
 
 
-
 ## OIDC Azure AD
 Helpful Video: https://www.youtube.com/watch?v=glZR3e9RQAI
 

@@ -1,3 +1,4 @@
+
 locals {
   auth_method_id = "ampw_KE8N7FFQSV"
 }
@@ -31,6 +32,7 @@ module "boundary" {
   aws_ec2_windows_instance     = module.boundary_aws_hosts.aws_ec2_windows_instance.private_ip
   azure_vm_instance = module.boundary_azure_hosts.azure_vm_instance_public_address
   #azure_vm_instance            = module.boundary_azure_hosts.azure_vm_instance_private_address
+
   boundary_controller_address  = var.boundary_controller_address
   aad_client_id                = var.aad_client_id
   aad_client_secret_value      = var.aad_client_secret_value

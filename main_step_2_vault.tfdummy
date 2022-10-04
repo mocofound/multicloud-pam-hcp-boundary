@@ -1,6 +1,7 @@
 module "vault" {
   source = "./modules/vault"
   #count = var.create_lc ? 1 : 0
+
   boundary_aws_hosts = module.boundary_aws_hosts
   #ssh_key = module.boundary_aws_hosts.ssh_private_key
   aws_db_instance_login_name = var.aws_db_instance_login_name
@@ -18,3 +19,4 @@ provider "vault" {
   token = module.hcp_vault.hcp_vault_cluster_admin_token
   namespace = var.vault_namespace
 }
+
