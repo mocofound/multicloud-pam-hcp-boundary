@@ -1,10 +1,11 @@
 # hcp-boundary-pam-multicloud
 
+## Summary
+
+The purpose of this project is to demonstrate HCP Boundary's ability to securely connect to resources (VMs, databases, containers, network devices, etc.) across multiple clouds (AWS, Azure, GCP and on-prem).
+
+## Overview Diagram
 ![HCP Boundary](./assets/Boundary_Diagram_HCP_Workers.png)
-
-
-## OIDC Azure AD
-Helpful Video: https://www.youtube.com/watch?v=glZR3e9RQAI
 
 ## Setup
 Install Terraform >v1.0
@@ -23,10 +24,10 @@ rename .tfdummy files to .tf
 
 terraform plan/apply
 
-## IMPORTANT
+## Help Authenticating with gcloud
 
-4) brew install --cask google-cloud-sdk
+1) brew install --cask google-cloud-sdk
 
-5) gcloud init
+2) gcloud init
 
-6) gcloud config set compute/zone us-central1-a
+3) gcloud config set compute/zone us-central1-a
