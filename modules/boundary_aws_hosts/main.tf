@@ -1,5 +1,6 @@
 locals  {
-  boundary_egress_cidr_ranges = ["35.168.53.57/32","34.232.124.174/32","44.194.155.74/32"]
+  boundary_egress_cidr_ranges = ["35.168.53.57/32","34.232.124.174/32","44.194.155.74/32","0.0.0.0/0"]
+  #boundary_egress_cidr_ranges = ["35.168.53.57/32","34.232.124.174/32","44.194.155.74/32"]
 }
 
 resource "aws_vpc" "boundary_poc" {
@@ -44,6 +45,20 @@ resource "aws_security_group" "boundary_poc" {
   ingress {
     from_port   = 5432
     to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = local.boundary_egress_cidr_ranges
+  }
+
+  ingress {
+    from_port   = 9201
+    to_port     = 9201
+    protocol    = "tcp"
+    cidr_blocks = local.boundary_egress_cidr_ranges
+  }
+
+  ingress {
+    from_port   = 9202
+    to_port     = 9202
     protocol    = "tcp"
     cidr_blocks = local.boundary_egress_cidr_ranges
   }
@@ -147,6 +162,58 @@ resource "aws_instance" "boundary_poc" {
 
   tags = {
     Name = "${var.prefix}-instance"
+  }
+}
+
+resource "aws_eip_association" "hcp_worker" {
+  instance_id   = aws_instance.hcp_worker.id
+  allocation_id = aws_eip.hcp_worker.id
+}
+
+resource "aws_eip" "hcp_worker" {
+  instance = aws_instance.hcp_worker.id
+  vpc      = true
+
+  tags = {
+    Name = "${var.prefix}-hcp-worker-eip"
+  }
+}
+
+resource "aws_instance" "hcp_worker" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type
+  key_name                    = aws_key_pair.boundary_poc.key_name
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.boundary_poc.id
+  vpc_security_group_ids      = [aws_security_group.boundary_poc.id]
+  user_data =  <<CUSTOM_DATA
+  #!/bin/bash
+  mkdir /home/ubuntu/boundary/ && cd /home/ubuntu/boundary/
+  wget -q https://releases.hashicorp.com/boundary-worker/0.10.5+hcp/boundary-worker_0.10.5+hcp_linux_amd64.zip ;\
+  sudo apt-get update && sudo apt-get install unzip ;\
+  unzip *.zip
+  cat << EOF > /home/ubuntu/boundary/pki-worker.hcl
+  disable_mlock = true
+  hcp_boundary_cluster_id = "7fd7b4f5-f38a-4570-9829-8bbc07b6b5a8"
+  listener "tcp" {
+    address = "0.0.0.0:9202"
+    purpose = "proxy"
+  }
+  worker {
+    public_addr = "ec2-3-216-70-46.compute-1.amazonaws.com"
+    auth_storage_path = "/home/ubuntu/boundary/worker1"
+    tags {
+      type = ["worker", "dev", "aws"]
+    }
+  }
+EOF
+
+  nohup ./boundary-worker server -config="/home/ubuntu/boundary/pki-worker.hcl" -log-level="debug">> /home/ubuntu/boundary/output.txt &
+
+CUSTOM_DATA
+
+  tags = {
+    Name = "${var.prefix}-hcp-worker-instance"
   }
 }
 

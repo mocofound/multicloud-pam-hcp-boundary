@@ -169,6 +169,18 @@ depends_on = [
 ]
 }
 
+resource "vault_generic_secret" "ssh_key_azure" {
+  path = "kv/my-secret-azure"
+  #namespace = var.vault_namespace
+  data_json = jsonencode({
+  "username": "hashicorp",
+  "private_key": "${var.boundary_aws_hosts.ssh_private_key_pem}"
+})
+depends_on = [
+  vault_mount.kv2,
+]
+}
+
 output "database_connection_string" {
   value = vault_database_secret_backend_connection.postgres.postgresql[0].connection_url
 }

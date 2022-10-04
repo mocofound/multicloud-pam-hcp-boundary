@@ -19,6 +19,10 @@ resource "aws_instance" "windows-server" {
   source_dest_check = false
   #user_data = data.template_file.windows-userdata.rendered 
   
+  tags = {
+    Name = "${var.prefix}-zurich-app1234-server"
+  }
+
   # root disk
   root_block_device {
     volume_size           = var.windows_root_volume_size
@@ -35,9 +39,7 @@ resource "aws_instance" "windows-server" {
     delete_on_termination = true
   }
 
-  tags = {
-    Name = "${var.prefix}-windows-server"
-  }
+
 
 }
 
@@ -151,7 +153,7 @@ resource "aws_eip" "windows-eip-2" {
 # Associate Elastic IP to Windows Server
 resource "aws_eip_association" "windows-eip-association-2" {
   instance_id   = aws_instance.windows-server-rdp-client.id
-  allocation_id = aws_eip.windows-eip.id
+  allocation_id = aws_eip.windows-eip-2.id
 }
 
 output "rdp_client_public_ip" {

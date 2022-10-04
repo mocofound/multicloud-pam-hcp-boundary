@@ -10,9 +10,9 @@ boundary_oidc_auth_method_id=$(terraform output -raw boundary_oidc_auth_method_i
 echo ${boundary_oidc_auth_method_id}
 
 boundary authenticate oidc -auth-method-id ${boundary_oidc_auth_method_id}
-sleep 2
+sleep 1
 boundary targets list -recursive
-boundary connect ssh -target-name aws_ec2_ssh_target -target-scope-name project_aws
-#boundary connect ssh -target-id tssh_jHLvZpOhW5 -- -l ubuntu -i ../boundary.pem
+boundary connect ssh -target-name azure_vm_ssh_target -target-scope-name project_azure
+
 #chmod 600 ./boundary-key-pair.pem 
 #ssh -i ./boundary-key-pair.pem ubuntu@ec2-34-227-187-120.compute-1.amazonaws.com

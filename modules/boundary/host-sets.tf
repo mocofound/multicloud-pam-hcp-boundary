@@ -40,7 +40,6 @@ resource "boundary_host_set_static" "aws_windows_rdp" {
   name            = "aws_host_set_windows_rdp"
   description     = "boundary host set static for aws windows rdp"
   host_catalog_id = boundary_host_catalog_static.aws_ssh.id
-
   host_ids = [
     boundary_host_static.aws_windows_rdp.id,
   ]
@@ -69,27 +68,27 @@ resource "boundary_host_static" "rds_postgres" {
   address         = var.aws_rds_db
 }
 
-# resource "boundary_host_catalog_static" "azure_ssh" {
-#   name        = "azure_host_catalog"
-#   description = "azure ssh test catalog"
-#   scope_id    = boundary_scope.project_azure.id
-# }
+resource "boundary_host_catalog_static" "azure_ssh" {
+  name        = "azure_host_catalog"
+  description = "azure ssh test catalog"
+  scope_id    = boundary_scope.project_azure.id
+}
 
-# resource "boundary_host_static" "azure_ssh" {
-#   type            = "static"
-#   name            = "azure_vm_ssh_host_1"
-#   host_catalog_id = boundary_host_catalog_static.azure_ssh.id
-#   address         = var.azure_vm_instance
-# }
+resource "boundary_host_static" "azure_ssh" {
+  type            = "static"
+  name            = "azure_vm_ssh_host_1"
+  host_catalog_id = boundary_host_catalog_static.azure_ssh.id
+  address         = var.azure_vm_instance
+}
 
 
-# resource "boundary_host_set_static" "azure_ssh" {
-#   type            = "static"
-#   name            = "azure_host_set_3"
-#   description     = "boundary host set static for azure vm ssh"
-#   host_catalog_id = boundary_host_catalog_static.azure_ssh.id
+resource "boundary_host_set_static" "azure_ssh" {
+  type            = "static"
+  name            = "azure_host_set_3"
+  description     = "boundary host set static for azure vm ssh"
+  host_catalog_id = boundary_host_catalog_static.azure_ssh.id
 
-#   host_ids = [
-#     #boundary_host_static.azure_ssh.id,
-#   ]
-# }
+  host_ids = [
+    boundary_host_static.azure_ssh.id,
+  ]
+}

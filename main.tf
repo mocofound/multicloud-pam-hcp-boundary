@@ -89,7 +89,7 @@ module "boundary_aws_hosts" {
   ]
 }
 
-# module "boundary_azure_hosts" {
-#   source = "./modules/boundary_azure_hosts"
-#   prefix = var.prefix
-# }
+module "boundary_azure_hosts" {
+   source = "./modules/boundary_azure_hosts"
+   prefix = var.prefix
+ }

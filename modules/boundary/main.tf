@@ -90,6 +90,42 @@ resource "boundary_managed_group" "idp_azure_users" {
   filter         = "\"c07786ab-4b7e-4078-a393-9b3be91df830\" in \"/token/groups\""
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# resource "boundary_managed_group" "idp_azure_users" {
+#   name           = "idp_azure_users"
+#   description    = "Azure users as defined by external IDP/auth method"
+#   auth_method_id = boundary_auth_method_oidc.auth.id
+#   #Below uses AAD groupid, which could be a module output from AAD/oidc module
+#   filter         = "\"objectID for Windows Read-Only Access Group \" in \"/token/groups\""
+# }
+
+# resource "boundary_managed_group" "idp_azure_users" {
+#   name           = "idp_azure_users"
+#   description    = "Azure users as defined by external IDP/auth method"
+#   auth_method_id = boundary_auth_method_oidc.auth.id
+#   #Below uses AAD groupid, which could be a module output from AAD/oidc module
+#   filter         = "\"objectID for Windows Admin Access Group \" in \"/token/groups\""
+# }
+
+
+
+
+
 resource "boundary_role" "oidc_role_1" {
   name          = "List and Read"
   description   = "List and read role"
@@ -114,6 +150,6 @@ resource "boundary_role" "boundary_azure_role" {
   name          = "List and Read"
   description   = "List and read role"
   principal_ids = [boundary_managed_group.idp_azure_users.id]
-    grant_strings = ["id=*;type=*;actions=list,read"]
+    grant_strings = ["id=*;type=*;actions=*"]
   scope_id      = boundary_scope.project_azure.id
 }

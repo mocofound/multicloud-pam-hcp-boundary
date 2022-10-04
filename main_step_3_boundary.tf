@@ -3,15 +3,19 @@ locals {
 }
 
 provider "boundary" {
-  #addr                             = module.hcp_boundary_cluster.boundary_addr
-  addr = var.boundary_controller_address
+  addr                             = module.hcp_boundary_cluster.boundary_addr
+  #addr = var.boundary_controller_address
+
   #auth_method_id = module.hcp_boundary_cluster.boundary_password_auth_method_id
-  #auth_method_id = local.auth_method_id
-  auth_method_id = var.boundary_password_auth_method_id
-  #password_auth_method_login_name  = module.hcp_boundary_cluster.boundary_login_name
-  password_auth_method_login_name = var.boundary_login_name
-  #password_auth_method_password    = module.hcp_boundary_cluster.boundary_login_password
-  password_auth_method_password = var.boundary_login_password
+  auth_method_id = local.auth_method_id
+  #auth_method_id = var.boundary_password_auth_method_id
+
+  password_auth_method_login_name  = module.hcp_boundary_cluster.boundary_login_name
+
+  #password_auth_method_login_name = var.boundary_login_name
+  password_auth_method_password    = module.hcp_boundary_cluster.boundary_login_password
+
+  #password_auth_method_password = var.boundary_login_password
 }
 
 module "boundary" {
@@ -23,7 +27,10 @@ module "boundary" {
   periodic_no_parent_renewable_vault_token_azure = module.vault.periodic_no_parent_renewable_vault_token_azure
   aws_ec2_instance             = module.boundary_aws_hosts.aws_ec2_instance.public_dns
   aws_rds_db                   = module.boundary_aws_hosts.aws_rds_db.address
-  aws_ec2_windows_instance    = module.boundary_aws_hosts.aws_ec2_windows_instance.public_dns
+  #aws_ec2_windows_instance    = module.boundary_aws_hosts.aws_ec2_windows_instance.public_dns
+  aws_ec2_windows_instance     = module.boundary_aws_hosts.aws_ec2_windows_instance.private_ip
+  azure_vm_instance = module.boundary_azure_hosts.azure_vm_instance_public_address
+  #azure_vm_instance            = module.boundary_azure_hosts.azure_vm_instance_private_address
   boundary_controller_address  = var.boundary_controller_address
   aad_client_id                = var.aad_client_id
   aad_client_secret_value      = var.aad_client_secret_value
