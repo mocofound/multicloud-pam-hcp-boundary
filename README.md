@@ -1,4 +1,4 @@
-# hcp-boundary-pam-multicloud
+# multicloud-pam-hcp-boundary
 
 ## Summary
 
