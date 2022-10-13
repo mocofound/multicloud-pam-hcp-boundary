@@ -11,6 +11,9 @@ feedback.txt
 *.pem
 *cli.sh
 
+# k8s kube_config_raw
+kubeconfig
+
 # Crash log files
 crash.log
 

@@ -12,6 +12,10 @@ variable "boundary_aws_hosts" {
   description = ""
 }
 
+variable "boundary_azure_hosts" {
+  description = ""
+}
+
 variable "aws_db_instance_login_name" {
   description = ""
 }

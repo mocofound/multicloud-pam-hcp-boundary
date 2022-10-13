@@ -6,7 +6,7 @@ resource "boundary_target" "aws_ssh" {
   scope_id     = boundary_scope.project_aws.id
   session_connection_limit = -1
   session_max_seconds      = 1000
-  worker_filter = "\"aws\" in \"/tags/type\""
+  #worker_filter = "\"aws\" in \"/tags/type\""
   host_source_ids = [
     boundary_host_set_static.aws_ssh.id,
   ]
@@ -23,7 +23,7 @@ resource "boundary_target" "aws_ssh_2" {
   scope_id     = boundary_scope.project_aws.id
   session_connection_limit = -1
   session_max_seconds      = 10000
-  worker_filter = "\"aws\" in \"/tags/type\""
+  #worker_filter = "\"aws\" in \"/tags/type\""
   host_source_ids = [
     boundary_host_set_static.aws_ssh.id,
   ]
@@ -59,7 +59,8 @@ resource "boundary_target" "aws_windows_rdp" {
   host_source_ids = [
     boundary_host_set_static.aws_windows_rdp.id,
   ]
-  worker_filter = "\"aws\" in \"/tags/type\""
+  #worker_filter = "\"aws\" in \"/tags/type\""
+  
   # brokered_credential_source_ids = [
   #    boundary_credential_library_vault.aws_windows_rdp.id,
   #  ]

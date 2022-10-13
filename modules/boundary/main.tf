@@ -90,22 +90,6 @@ resource "boundary_managed_group" "idp_azure_users" {
   filter         = "\"c07786ab-4b7e-4078-a393-9b3be91df830\" in \"/token/groups\""
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # resource "boundary_managed_group" "idp_azure_users" {
 #   name           = "idp_azure_users"
 #   description    = "Azure users as defined by external IDP/auth method"
@@ -121,10 +105,6 @@ resource "boundary_managed_group" "idp_azure_users" {
 #   #Below uses AAD groupid, which could be a module output from AAD/oidc module
 #   filter         = "\"objectID for Windows Admin Access Group \" in \"/token/groups\""
 # }
-
-
-
-
 
 resource "boundary_role" "oidc_role_1" {
   name          = "List and Read"

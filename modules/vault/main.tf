@@ -174,7 +174,7 @@ resource "vault_generic_secret" "ssh_key_azure" {
   #namespace = var.vault_namespace
   data_json = jsonencode({
   "username": "hashicorp",
-  "private_key": "${var.boundary_aws_hosts.ssh_private_key_pem}"
+  "private_key": "${var.boundary_azure_hosts.azure_tls_private_key}"
 })
 depends_on = [
   vault_mount.kv2,
