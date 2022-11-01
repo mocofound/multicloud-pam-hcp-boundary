@@ -21,6 +21,7 @@ resource "boundary_target" "azure_hcp_worker" {
   type         = "ssh"
   default_port = "22"
   scope_id     = boundary_scope.project_azure.id
+  #worker_filter = "\"azure\" in \"/tags/type\""
   session_connection_limit = -1
   session_max_seconds      = 1000
   host_source_ids = [
@@ -65,9 +66,9 @@ resource "boundary_target" "azure_windows_rdp" {
   host_source_ids = [
     boundary_host_set_static.azure_windows_rdp.id,
   ]
-  # brokered_credential_source_ids = [
-  #    boundary_credential_library_vault.azure_windows_rdp.id,
-  #  ]
+  brokered_credential_source_ids = [
+     boundary_credential_library_vault.azure_windows_rdp_v1.id,
+   ]
   # injected_application_credential_source_ids = [
   #     boundary_credential_library_vault.azure_ssh.id,
   # ]

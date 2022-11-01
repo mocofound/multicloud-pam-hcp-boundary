@@ -12,7 +12,7 @@ locals {
     purpose = "proxy"
   }
   worker {
-    public_addr = "52.165.38.233"
+    public_addr = "boundary-poc-7-hcp-worker.centralus.cloudapp.azure.com"
     auth_storage_path = "/home/hashicorp/boundary/worker1"
     tags {
       #type = ["worker", "dev", "azure"]
@@ -20,18 +20,29 @@ locals {
     }
   }
 EOF
-  #curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - ;\
-  #sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;\
-  #sudo apt-get update && sudo apt-get install boundary ;\
-  #boundary server -config="/home/hashicorp/pki-worker.hcl"
-  wget -q https://releases.hashicorp.com/boundary-worker/0.11.0+hcp/boundary-worker_0.11.0+hcp_linux_amd64.zip ;\
-  #sudo apt-get update && sudo apt-get install unzip ;\
-  sudo apt-get install unzip ;\
-  unzip *.zip
+
+sudo apt-get update
+sudo apt -y install "docker.io"
+sudo docker run \
+  -p 9202:9202 \
+  -v "$(pwd)":/boundary/ \
+  --name boundary-worker-hcp-2 \
+  hashicorp/boundary-worker-hcp \
+  boundary-worker server -config /boundary/pki-worker.hcl
+
+  # #curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - ;\
+  # #sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;\
+  # #sudo apt-get update && sudo apt-get install boundary ;\
+  # #boundary server -config="/home/hashicorp/pki-worker.hcl"
+  # wget -q https://releases.hashicorp.com/boundary-worker/0.11.0+hcp/boundary-worker_0.11.0+hcp_linux_amd64.zip ;\
+  # #sudo apt-get update && sudo apt-get install unzip ;\
+  # sudo apt-get install unzip ;\
+  # unzip *.zip
 
 
-  nohup ./boundary-worker server -config="/home/hashicorp/boundary/pki-worker.hcl" >> /home/hashicorp/boundary/output.txt &
-  #nohup boundary server -config="/home/hashicorp/boundary/pki-worker.hcl" >> /home/hashicorp/boundary/output.txt &
+  # #nohup ./boundary-worker server -config="/home/hashicorp/boundary/pki-worker.hcl" >> /home/hashicorp/boundary/output.txt &
+  # #nohup boundary server -config="/home/hashicorp/boundary/pki-worker.hcl" >> /home/hashicorp/boundary/output.txt &
+
   CUSTOM_DATA
 }
 
@@ -68,31 +79,18 @@ resource "azurerm_network_security_group" "catapp-sg" {
   location            = var.location
   resource_group_name = azurerm_resource_group.myresourcegroup.name
 
-  # security_rule {
-  #   name                       = "SSH"
-  #   priority                   = 101
-  #   direction                  = "Inbound"
-  #   access                     = "Allow"
-  #   protocol                   = "Tcp"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "22"
-  #   #source_address_prefix      = "*"
-  #   source_address_prefixes = local.boundary_egress_cidr_ranges
-  #   destination_address_prefix = "*"
-  # }
-
-  # security_rule {
-  #   name                       = "Boundary Controller Worker"
-  #   priority                   = 102
-  #   direction                  = "Inbound"
-  #   access                     = "Allow"
-  #   protocol                   = "Tcp"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "9201"
-  #   #source_address_prefix      = "*"
-  #   source_address_prefixes = local.boundary_egress_cidr_ranges
-  #   destination_address_prefix = "*"
-  # }
+  security_rule {
+    name                       = "SSH"
+    priority                   = 101
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    #source_address_prefix      = "*"
+    source_address_prefixes = local.boundary_egress_cidr_ranges
+    destination_address_prefix = "*"
+  }
 
     security_rule {
     name                       = "Boundary Controller Worker 9202"
