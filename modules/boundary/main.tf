@@ -46,6 +46,16 @@ resource "boundary_managed_group" "idp_aws_users" {
   filter         = "\"9e587b96-d37a-44a9-b862-4868f6deebc7\" in \"/token/groups\""
 }
 
+resource "boundary_role" "oidc_role_1" {
+  name          = "List and Read"
+  description   = "List and read role"
+  principal_ids = [boundary_managed_group.idp_aws_users.id]
+  #TODO: Filter type down from * to be more specific
+  #  grant_strings = ["id=*;type=*;actions=list,read"]
+  grant_strings = ["id=*;type=*;actions=*"]
+  scope_id      = boundary_scope.project_aws.id
+}
+
 #Creating an project scope within an organization:
 resource "boundary_scope" "project_azure" {
   name                   = "project_azure"
@@ -54,6 +64,7 @@ resource "boundary_scope" "project_azure" {
   auto_create_admin_role = true
   auto_create_default_role = true
 }
+
 
 #Creating an project scope within an organization:
 resource "boundary_scope" "project_gcp" {
@@ -90,51 +101,6 @@ resource "boundary_managed_group" "idp_azure_users" {
   filter         = "\"c07786ab-4b7e-4078-a393-9b3be91df830\" in \"/token/groups\""
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# resource "boundary_managed_group" "idp_azure_users" {
-#   name           = "idp_azure_users"
-#   description    = "Azure users as defined by external IDP/auth method"
-#   auth_method_id = boundary_auth_method_oidc.auth.id
-#   #Below uses AAD groupid, which could be a module output from AAD/oidc module
-#   filter         = "\"objectID for Windows Read-Only Access Group \" in \"/token/groups\""
-# }
-
-# resource "boundary_managed_group" "idp_azure_users" {
-#   name           = "idp_azure_users"
-#   description    = "Azure users as defined by external IDP/auth method"
-#   auth_method_id = boundary_auth_method_oidc.auth.id
-#   #Below uses AAD groupid, which could be a module output from AAD/oidc module
-#   filter         = "\"objectID for Windows Admin Access Group \" in \"/token/groups\""
-# }
-
-
-
-
-
-resource "boundary_role" "oidc_role_1" {
-  name          = "List and Read"
-  description   = "List and read role"
-  principal_ids = [boundary_managed_group.idp_aws_users.id]
-  #TODO: Filter type down from * to be more specific
-  #  grant_strings = ["id=*;type=*;actions=list,read"]
-  grant_strings = ["id=*;type=*;actions=*"]
-  scope_id      = boundary_scope.project_aws.id
-}
 
 resource "boundary_role" "oidc_role_100" {
   name          = "List and Read"

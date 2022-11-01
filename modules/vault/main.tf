@@ -157,6 +157,13 @@ resource "vault_mount" "kv2" {
   #namespace = var.vault_namespace
 }
 
+resource "vault_mount" "kv_v1" {
+  path        = "kvv1"
+  type        = "kv"
+  description = "kv v1 secret engine"
+  #namespace = var.vault_namespace
+}
+
 resource "vault_generic_secret" "ssh_key" {
   path = "kv/my-secret"
   #namespace = var.vault_namespace
@@ -174,10 +181,34 @@ resource "vault_generic_secret" "ssh_key_azure" {
   #namespace = var.vault_namespace
   data_json = jsonencode({
   "username": "hashicorp",
-  "private_key": "${var.boundary_aws_hosts.ssh_private_key_pem}"
+  "private_key": "${var.boundary_azure_hosts.azure_tls_private_key}"
 })
 depends_on = [
   vault_mount.kv2,
+]
+}
+
+resource "vault_generic_secret" "ssh_key_azure_rdp" {
+  path = "kv/my-secret-rdp"
+  #namespace = var.vault_namespace
+  data_json = jsonencode({
+  "username": "hashicorp",
+  "password": "Password123!"
+})
+depends_on = [
+  vault_mount.kv2,
+]
+}
+
+resource "vault_generic_secret" "ssh_key_azure_rdp_v1" {
+  path = "kvv1/my-secret-rdp"
+  #namespace = var.vault_namespace
+  data_json = jsonencode({
+  "username": "hashicorp",
+  "password": "Password123!"
+})
+depends_on = [
+  vault_mount.kv_v1,
 ]
 }
 

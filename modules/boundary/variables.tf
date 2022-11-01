@@ -61,10 +61,21 @@ variable "azure_vm_instance" {
   default = "changeme"
 }
 
+variable "azure_vm_hcp_worker_instance" {
+  default = "changeme"
+}
+
+variable "aks_cluster_address" {
+  default = "changeme"
+}
+
 variable "credential_store_description" {
     default = "boundary_cred_store_2"
 }
 
 variable "boundary_scope_id" {
     default = "changeme"
+}
+variable "azure_windows_rdp_address" {
+  default = "changeme"
 }

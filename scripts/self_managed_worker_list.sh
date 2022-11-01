@@ -24,7 +24,7 @@ read workerID
 #echo "enter worker's scopeID: "
 #read scopeID
 boundary workers read -id $workerID
-# boundary targets list -recursive
+ boundary targets list -recursive -filter ''
 # echo "Please Input TargetID to use with Self-Managed Worker: "
 # read targetid
 # export TARGET_ID=${targetid}

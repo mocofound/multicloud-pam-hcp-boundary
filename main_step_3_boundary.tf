@@ -28,18 +28,23 @@ module "boundary" {
   periodic_no_parent_renewable_vault_token_azure = module.vault.periodic_no_parent_renewable_vault_token_azure
   aws_ec2_instance             = module.boundary_aws_hosts.aws_ec2_instance.public_dns
   aws_rds_db                   = module.boundary_aws_hosts.aws_rds_db.address
-  #aws_ec2_windows_instance    = module.boundary_aws_hosts.aws_ec2_windows_instance.public_dns
+  #aws_ec2_windows_instance     = module.boundary_aws_hosts.aws_ec2_windows_instance.public_dns
   aws_ec2_windows_instance     = module.boundary_aws_hosts.aws_ec2_windows_instance.private_ip
-  azure_vm_instance = module.boundary_azure_hosts.azure_vm_instance_public_address
-  #azure_vm_instance            = module.boundary_azure_hosts.azure_vm_instance_private_address
-
+  #azure_vm_instance            = module.boundary_azure_hosts.azure_vm_instance_public_address
+  azure_vm_instance            = module.boundary_azure_hosts.azure_vm_instance_private_address
+  azure_vm_hcp_worker_instance = module.boundary_azure_hosts.azure_vm_hcp_worker_instance_public_address
+  aks_cluster_address          = module.boundary_azure_hosts.azure_aks_cluster_fqdn
+  #aks_cluster_address          = module.boundary_azure_hosts.azure_aks_cluster_private_fqdn
+  azure_windows_rdp_address =  module.boundary_azure_hosts.azure_windows_rdp_address
   boundary_controller_address  = var.boundary_controller_address
+  
   aad_client_id                = var.aad_client_id
   aad_client_secret_value      = var.aad_client_secret_value
   aad_tenant_id                = var.aad_tenant_id
   depends_on = [
     module.hcp_vault,
     module.boundary_aws_hosts,
+    module.boundary_azure_hosts,
     module.vault,
   ]
 }

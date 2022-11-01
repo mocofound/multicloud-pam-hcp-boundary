@@ -3,6 +3,7 @@ module "vault" {
   #count = var.create_lc ? 1 : 0
 
   boundary_aws_hosts = module.boundary_aws_hosts
+  boundary_azure_hosts = module.boundary_azure_hosts
   #ssh_key = module.boundary_aws_hosts.ssh_private_key
   aws_db_instance_login_name = var.aws_db_instance_login_name
   aws_db_instance_login_password =  var.aws_db_instance_login_password
@@ -10,6 +11,7 @@ module "vault" {
   depends_on = [
     module.hcp_vault,
     module.boundary_aws_hosts,
+    module.boundary_azure_hosts
   ]
 }
 
@@ -19,4 +21,3 @@ provider "vault" {
   token = module.hcp_vault.hcp_vault_cluster_admin_token
   namespace = var.vault_namespace
 }
-
