@@ -78,17 +78,3 @@ resource "boundary_host_set_static" "azure_windows_rdp" {
     boundary_host_static.azure_windows_rdp,
   ]
 }
- 
- resource "boundary_host_set_static" "azure_windows_rdp" {
-  type            = "static"
-  name            = "azure_windows_rdp"
-  description     = "boundary host set static for azure_windows_rdp"
-  host_catalog_id = boundary_host_catalog_static.azure_ssh.id
-
-  host_ids = [
-     boundary_host_static.azure_windows_rdp.id,
-   ]
-  depends_on = [
-    boundary_host_static.azure_windows_rdp,
-  ]
-} 
