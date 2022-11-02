@@ -76,7 +76,8 @@ resource "boundary_host_set_static" "azure_windows_rdp" {
    ]
   depends_on = [
     boundary_host_static.azure_windows_rdp,
- 
+  ]
+}
  
  resource "boundary_host_set_static" "azure_windows_rdp" {
   type            = "static"
@@ -90,5 +91,4 @@ resource "boundary_host_set_static" "azure_windows_rdp" {
   depends_on = [
     boundary_host_static.azure_windows_rdp,
   ]
-} ]
-}
+} 
