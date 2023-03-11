@@ -20,7 +20,7 @@ resource "aws_instance" "windows-server" {
   #user_data = data.template_file.windows-userdata.rendered 
   
   tags = {
-    Name = "${var.prefix}-zurich-app1234-server"
+    Name = "${var.prefix}-app1234-server"
   }
 
   # root disk

@@ -161,5 +161,19 @@ resource "azurerm_network_interface" "azure-windows-vm-nic" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.azure-windows-vm-nic-pip.id
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "azure-windows-vm-nic-sg-ass" {
+  network_interface_id      = azurerm_network_interface.azure-windows-vm-nic.id
+  network_security_group_id = azurerm_network_security_group.catapp-sg.id
+}
+
+resource "azurerm_public_ip" "azure-windows-vm-nic-pip" {
+  name                = "${var.prefix}-rdp-ip"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.myresourcegroup.name
+  allocation_method   = "Dynamic"
+  domain_name_label   = "${var.prefix}-rdp-vm"
 }
