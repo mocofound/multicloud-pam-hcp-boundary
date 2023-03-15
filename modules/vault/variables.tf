@@ -23,3 +23,7 @@ variable "aws_db_instance_login_name" {
 variable "aws_db_instance_login_password" {
   description = ""
 }
+
+variable "key_name" {
+  type = string
+}

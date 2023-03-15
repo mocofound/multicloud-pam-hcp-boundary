@@ -9,4 +9,14 @@ resource "aws_db_instance" "rds" {
   skip_final_snapshot  = true
   publicly_accessible  = true
   allow_major_version_upgrade = false
+  db_subnet_group_name = aws_db_subnet_group.rds.name
+}
+
+resource "aws_db_subnet_group" "rds" {
+  name       = "main"
+  subnet_ids = [aws_subnet.boundary_poc.id, aws_subnet.boundary_poc_2.id]
+
+  tags = {
+    Name = "My DB subnet group"
+  }
 }

@@ -1,5 +1,5 @@
 locals {
-  #boundary_egress_cidr_ranges = ["35.168.53.57/32","34.232.124.174/32","44.194.155.74/32","0.0.0.0/0"]
+  #boundary_egress_cidr_ranges = ["35.168.53.57/32","34.232.124.174/32","44.194.155.74/32","20.29.95.122/32"]
   boundary_egress_cidr_ranges = ["0.0.0.0/0"]
   custom_data = <<CUSTOM_DATA
   #!/bin/bash
@@ -93,13 +93,26 @@ resource "azurerm_network_security_group" "catapp-sg" {
   }
 
     security_rule {
-    name                       = "Boundary Controller Worker 9202"
+    name                       = "Boundary_Controller_Worker_9202"
     priority                   = 103
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "9202"
+    #source_address_prefix      = "*"
+    source_address_prefixes = local.boundary_egress_cidr_ranges
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Boundary_RDP_3389"
+    priority                   = 104
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3389"
     #source_address_prefix      = "*"
     source_address_prefixes = local.boundary_egress_cidr_ranges
     destination_address_prefix = "*"

@@ -1,13 +1,15 @@
 resource "boundary_host_set_static" "aws_ssh" {
   type            = "static"
   name            = "aws_host_set"
-  description     = "boundary host set static for aws ssh"
+  description     = "boundary host setfor aws ssh"
   host_catalog_id = boundary_host_catalog_static.aws_ssh.id
 
   host_ids = [
-    boundary_host_static.aws_ssh.id,
+    boundary_host_static.aws_ssh.id
   ]
 }
+
+
 
 resource "boundary_host_set_static" "aws_windows_rdp" {
   #type            = "static"

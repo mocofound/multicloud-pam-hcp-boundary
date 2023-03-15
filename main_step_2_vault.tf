@@ -7,6 +7,7 @@ module "vault" {
   #ssh_key = module.boundary_aws_hosts.ssh_private_key
   aws_db_instance_login_name = var.aws_db_instance_login_name
   aws_db_instance_login_password =  var.aws_db_instance_login_password
+  key_name = var.key_name
     
   depends_on = [
     module.hcp_vault,

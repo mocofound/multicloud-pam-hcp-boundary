@@ -79,3 +79,21 @@ variable "boundary_scope_id" {
 variable "azure_windows_rdp_address" {
   default = "changeme"
 }
+#     "access_key_id"     = var.aws_access_key_id
+#     "secret_access_key" = var.aws_secret_access_key
+
+variable "aws_access_key_id" {
+  default = "set TF_VAR_aws_access_key_id environment variable"
+}
+
+variable "aws_secret_access_key" {
+  default = "set TF_VAR_aws_secret_access_key environment variable"
+}
+
+variable "aws_session_token" {
+  default = "set TF_VAR_aws_session_token environment variable"
+}
+
+# variable "key_name" {
+#   type = string
+# }
