@@ -14,3 +14,4 @@ output "boundary_login_password" {
 output "boundary_addr" {
   value = hcp_boundary_cluster.boundary_cluster.cluster_url
 }
+

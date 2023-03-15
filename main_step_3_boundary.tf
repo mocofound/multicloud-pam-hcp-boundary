@@ -1,6 +1,6 @@
 
 locals {
-  auth_method_id = "ampw_KE8N7FFQSV"
+  auth_method_id = "ampw_ocFcdIi8Oa"
 }
 
 provider "boundary" {
@@ -21,6 +21,8 @@ provider "boundary" {
 
 module "boundary" {
   source = "./modules/boundary"
+    #boundary_controller_address  = var.boundary_controller_address
+  boundary_controller_address     = module.hcp_boundary_cluster.boundary_addr
   vault_address                = module.hcp_vault.hcp_vault_cluster_public_ip
   vault_token                  = module.hcp_vault.hcp_vault_cluster_admin_token
   vault_namespace              = var.vault_namespace
@@ -36,8 +38,8 @@ module "boundary" {
   aks_cluster_address          = module.boundary_azure_hosts.azure_aks_cluster_fqdn
   #aks_cluster_address          = module.boundary_azure_hosts.azure_aks_cluster_private_fqdn
   azure_windows_rdp_address =  module.boundary_azure_hosts.azure_windows_rdp_address
-  boundary_controller_address  = var.boundary_controller_address
-  
+  # aws_access_key_id = var.aws_access_key_id
+  # aws_access_access_key = var.aws_access_access_key
   aad_client_id                = var.aad_client_id
   aad_client_secret_value      = var.aad_client_secret_value
   aad_tenant_id                = var.aad_tenant_id

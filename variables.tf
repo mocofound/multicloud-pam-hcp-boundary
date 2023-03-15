@@ -83,3 +83,19 @@ variable "azure_region" {
 variable "azure_resource_group_name" {
   default = "changeme"
 }
+
+variable "aws_access_key_id" {
+  default = "set TF_VAR_aws_access_key_id environment variable"
+}
+
+variable "aws_secret_access_key" {
+  default = "set TF_VAR_aws_secret_access_key environment variable"
+}
+
+variable "aws_session_token" {
+  default = "set TF_VAR_aws_session_token environment variable"
+}
+
+variable "key_name" {
+  type = string
+}

@@ -176,6 +176,29 @@ depends_on = [
 ]
 }
 
+# data "aws_key_pair" "ssh_key_nomad" {
+#   key_name           = var.key_name
+#   include_public_key = true
+# }
+
+# data "tls_private_key" "nomad_ssh" {
+#   pem_private_key_file = file("./${var.key_name}")
+#   algorithm = "RSA"
+# }
+
+resource "vault_generic_secret" "ssh_key_nomad" {
+  path = "kv/my-nomad-secret"
+  #namespace = var.vault_namespace
+  data_json = jsonencode({
+  "username": "ubuntu",
+  "private_key": "${file(var.key_name)}"
+})
+
+depends_on = [
+  vault_mount.kv2,
+]
+}
+
 resource "vault_generic_secret" "ssh_key_azure" {
   path = "kv/my-secret-azure"
   #namespace = var.vault_namespace

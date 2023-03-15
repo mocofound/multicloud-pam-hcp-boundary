@@ -93,7 +93,7 @@ resource "azurerm_network_security_group" "catapp-sg" {
   }
 
     security_rule {
-    name                       = "Boundary Controller Worker 9202"
+    name                       = "Boundary_Controller_Worker_9202"
     priority                   = 103
     direction                  = "Inbound"
     access                     = "Allow"
@@ -106,7 +106,7 @@ resource "azurerm_network_security_group" "catapp-sg" {
   }
 
   security_rule {
-    name                       = "Boundary RDP 3389"
+    name                       = "Boundary_RDP_3389"
     priority                   = 104
     direction                  = "Inbound"
     access                     = "Allow"

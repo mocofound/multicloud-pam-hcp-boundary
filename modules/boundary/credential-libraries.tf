@@ -7,6 +7,15 @@ resource "boundary_credential_library_vault" "aws_ssh" {
   credential_type     = "ssh_private_key"
 }
 
+resource "boundary_credential_library_vault" "nomad_ssh" {
+  name                = "nomad_ssh"
+  description         = "Vault credential library for nomad ssh access"
+  credential_store_id = boundary_credential_store_vault.vault_cred_store.id
+  path                = "kv/data/my-nomad-secret" # change to Vault backend path
+  http_method         = "GET"
+  credential_type     = "ssh_private_key"
+}
+
 resource "boundary_credential_library_vault" "azure_windows_rdp" {
   name                = "azure_windows_rdp"
   description         = "Vault credential library for azure_windows_rdp"

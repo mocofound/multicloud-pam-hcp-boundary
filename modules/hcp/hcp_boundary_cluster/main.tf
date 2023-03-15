@@ -3,3 +3,4 @@ resource "hcp_boundary_cluster" "boundary_cluster" {
   username   = var.username
   password   = var.password
 }
+

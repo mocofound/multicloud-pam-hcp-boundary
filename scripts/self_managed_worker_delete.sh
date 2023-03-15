@@ -9,7 +9,7 @@ boundary_login_name=$(terraform output -raw boundary_login_name)
 echo ${boundary_login_name}
 boundary_login_password=$(terraform output -raw boundary_login_password)
 echo ${boundary_login_password}
-boundary_password_auth_method_id="ampw_KE8N7FFQSV"
+boundary_password_auth_method_id="ampw_ocFcdIi8Oa"
 #boundary_password_auth_method_id=$(terraform output -raw boundary_password_auth_method_id)
 echo ${boundary_password_auth_method_id}
 boundary authenticate password -login-name ${boundary_login_name} -auth-method-id ${boundary_password_auth_method_id}

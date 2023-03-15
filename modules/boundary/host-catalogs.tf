@@ -1,3 +1,4 @@
+
 resource "boundary_host_catalog_static" "aws_ssh" {
   name        = "aws_host_catalog"
   description = "test catalog"
