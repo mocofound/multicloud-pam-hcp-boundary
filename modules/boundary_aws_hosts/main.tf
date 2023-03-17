@@ -17,7 +17,7 @@ resource "aws_subnet" "boundary_poc" {
   vpc_id     = aws_vpc.boundary_poc.id
   cidr_block = var.subnet_prefix
   availability_zone = "${var.region}a"
-
+  
   tags = {
     Name = "${var.prefix}-subnet-a"
   }

@@ -10,12 +10,12 @@ resource "aws_db_instance" "rds" {
   publicly_accessible  = true
   allow_major_version_upgrade = false
   db_subnet_group_name = aws_db_subnet_group.rds.name
+  #vpc_security_group_ids = ["${aws_security_group.boundary_poc.id}"]
 }
 
 resource "aws_db_subnet_group" "rds" {
   name       = "main"
   subnet_ids = [aws_subnet.boundary_poc.id, aws_subnet.boundary_poc_2.id]
-
   tags = {
     Name = "My DB subnet group"
   }
