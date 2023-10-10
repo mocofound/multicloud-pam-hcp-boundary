@@ -56,3 +56,11 @@ resource "boundary_scope" "project_onprem" {
   auto_create_default_role = true
 }
 
+#Creating an project scope within an organization:
+resource "boundary_scope" "project_tde" {
+  name                   = "project_tde"
+  description            = "tde"
+  scope_id               = boundary_scope.org.id
+  auto_create_admin_role = true
+  auto_create_default_role = true
+}

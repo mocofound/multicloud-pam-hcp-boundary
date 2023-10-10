@@ -29,3 +29,9 @@ resource "boundary_host_catalog_static" "azure_aks" {
   description = "azure aks host catalog"
   scope_id    = boundary_scope.project_azure.id
 }
+
+resource "boundary_host_catalog_static" "tde" {
+  name        = "tde"
+  description = "tde catalog"
+  scope_id    = boundary_scope.project_tde.id
+}

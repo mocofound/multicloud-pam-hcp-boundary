@@ -94,6 +94,11 @@ variable "aws_session_token" {
   default = "set TF_VAR_aws_session_token environment variable"
 }
 
-# variable "key_name" {
-#   type = string
-# }
+variable "auth_method_id" {
+  type = string
+  default = ""
+}
+
+variable "periodic_no_parent_renewable_vault_token_tde" {
+  type = string
+}

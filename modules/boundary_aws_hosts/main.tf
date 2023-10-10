@@ -306,7 +306,7 @@ resource "tls_private_key" "boundary_poc" {
 }
 
 locals {
-  private_key_filename = "${var.prefix}-ssh-key.pem"
+  private_key_filename = "${var.prefix}-ssh-key-2.pem"
 }
 
 resource "aws_key_pair" "boundary_poc" {

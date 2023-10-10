@@ -1,6 +1,10 @@
 output "boundary_password_auth_method_id" {
-  #value = hcp_boundary_cluster.boundary_cluster.auth_method_id
-  value = "fixme"
+  value = data.http.boundary_cluster_auth_methods.response_body
+  #value = "fixme"
+}
+
+data "http" "boundary_cluster_auth_methods" {
+  url = "${hcp_boundary_cluster.boundary_cluster.cluster_url}/v1/auth-methods?filter=%22password%22+in+%22%2Fitem%2Ftype%22&scope_id=global"
 }
 
 output "boundary_login_name" {

@@ -8,6 +8,7 @@ resource "hcp_vault_cluster" "boundary_vault_cluster" {
 
 resource "hcp_vault_cluster_admin_token" "my_token" {
   cluster_id = hcp_vault_cluster.boundary_vault_cluster.cluster_id
+  
 }
 
 

@@ -29,10 +29,10 @@ resource "aws_iam_user" "boundary_dynamic_host_catalog" {
   force_destroy        = true
 }
 
-resource "aws_iam_user_policy" "boundary_dynamic_host_catalog" {
+resource "aws_iam_user_policy_attachment" "boundary_dynamic_host_catalog" {
   user   = aws_iam_user.boundary_dynamic_host_catalog.name
-  policy = data.aws_iam_policy.demo_user_permissions_boundary.policy
-  name   = "DemoUserInlinePolicy"
+  policy_arn = data.aws_iam_policy.demo_user_permissions_boundary.arn
+  #name   = "DemoUserInlinePolicy"
   lifecycle {
     ignore_changes = all
     
@@ -72,8 +72,8 @@ resource "boundary_host_catalog_plugin" "aws_ssh" {
 
 # Don't use this here it is just for historical info
 #     secrets_json = jsonencode({
-#     "access_key_id"     = "AKIA3PL2TGEMSY75AR"
-#     "secret_access_key" = "cKsh/CNFJvjFl/benhwN4fbZP+4YrwdyRJMwMF"
+#     "access_key_id"     = "AKIA3PL2TGEMSY7f5AR"
+#     "secret_access_key" = "cKsh/CNFJvjFl/benhwN4fbZfP+4YrwdyRJMwMF"
 #   })
   depends_on = [
     aws_iam_access_key.boundary_dynamic_host_catalog
@@ -111,7 +111,7 @@ resource "boundary_host_set_plugin" "aws_vault_servers" {
   host_catalog_id     = boundary_host_catalog_plugin.aws_ssh.id
   preferred_endpoints = ["cidr:54.0.0.0/8","cidr:35.0.0.0/8","cidr:52.0.0.0/8",]
   attributes_json = jsonencode({
-    "filters" = "tag:boundary=ssh",
+    "filters" = "tag:boundary=sa",
     "filters" = "tag:VaultType=server",
   })
   sync_interval_seconds = 60
