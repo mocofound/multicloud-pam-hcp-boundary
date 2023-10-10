@@ -99,3 +99,7 @@ variable "aws_session_token" {
 variable "key_name" {
   type = string
 }
+
+variable "initial_upstreams" {
+  default = ["db50eb6a-848c-4300-d908-62dc1d7119db.proxy.boundary.hashicorp.cloud:9202","e4a10e80-e73c-cb96-7d39-8652b7f7d186.proxy.boundary.hashicorp.cloud:9202","10f8794a-237a-b459-9fdd-a44a370a9f20.proxy.boundary.hashicorp.cloud:9202"]
+}

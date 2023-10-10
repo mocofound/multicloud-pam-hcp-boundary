@@ -32,6 +32,30 @@ resource "vault_token" "boundary_token" {
     vault_token_auth_backend_role.boundary_role
   ]
 }
+
+resource "vault_token" "boundary_token_tde" {
+  role_name = "boundary_role"
+  renewable = true
+  period = "30d"
+  #no_parent = true
+  #namespace = "var.vault_namespace"
+  no_default_policy = true
+  policies = [vault_policy.controller.name, vault_policy.broker.name]
+  #policies = []
+  ttl = "25h"
+  
+
+  renew_min_lease = 43200
+  renew_increment = 86400
+
+  metadata = {
+    "purpose" = "boundary-service-account"
+  }
+  depends_on = [
+    vault_token_auth_backend_role.boundary_role
+  ]
+}
+
 resource "vault_token_auth_backend_role" "boundary_azure_role" {
   role_name              = "boundary_azure_role"
   allowed_policies       = [vault_policy.controller.name, vault_policy.broker.name]
@@ -97,9 +121,6 @@ resource "vault_policy" "broker" {
   name = "boundary-vault-broker-policy"
 
   policy = <<EOT
-path "secret/data/my-secret" {
-  capabilities = ["read"]
-}
 
 path "secret/data/my-app-secret" {
   capabilities = ["read"]
@@ -129,7 +150,8 @@ resource "vault_database_secret_backend_connection" "postgres" {
   allowed_roles = ["postgres_db_role"]
   #maybe /database should be /${aws_db_instance.rds.db_name?}
   postgresql {
-    connection_url = "postgres://${var.aws_db_instance_login_name}:${var.aws_db_instance_login_password}@${var.boundary_aws_hosts.rds_db_address}:5432/${var.boundary_aws_hosts.rds_db_name}?sslmode=disable"
+    connection_url = "postgres://${var.aws_db_instance_login_name}:${var.aws_db_instance_login_password}@${var.hosts[0].rds_db_address}:5432/${var.hosts[0].rds_db_name}?sslmode=disable"
+    #connection_url = "postgres://${var.aws_db_instance_login_name}:${var.aws_db_instance_login_password}@${var.hosts.rds_db_address}:5432/${var.hosts.rds_db_name}?sslmode=disable"
   }
   #postgresql {
   #  connection_url = "postgres://postgres:password@${aws_instance.boundary_poc.public_dns}:5432/database?sslmode=disable"
@@ -164,17 +186,17 @@ resource "vault_mount" "kv_v1" {
   #namespace = var.vault_namespace
 }
 
-resource "vault_generic_secret" "ssh_key" {
-  path = "kv/my-secret"
-  #namespace = var.vault_namespace
-  data_json = jsonencode({
-  "username": "ubuntu",
-  "private_key": "${var.boundary_aws_hosts.ssh_private_key_pem}"
-})
-depends_on = [
-  vault_mount.kv2,
-]
-}
+# resource "vault_generic_secret" "ssh_key" {
+#   path = "kv/my-secret"
+#   #namespace = var.vault_namespace
+#   data_json = jsonencode({
+#   "username": "ubuntu",
+#   "private_key": "${var.hosts[0].ssh_private_key_pem}"
+# })
+# depends_on = [
+#   vault_mount.kv2,
+# ]
+# }
 
 # data "aws_key_pair" "ssh_key_nomad" {
 #   key_name           = var.key_name
@@ -204,7 +226,7 @@ resource "vault_generic_secret" "ssh_key_azure" {
   #namespace = var.vault_namespace
   data_json = jsonencode({
   "username": "hashicorp",
-  "private_key": "${var.boundary_azure_hosts.azure_tls_private_key}"
+  "private_key": "${var.hosts[0].azure_tls_private_key != null ? var.hosts[0].azure_tls_private_key : null}"
 })
 depends_on = [
   vault_mount.kv2,
@@ -235,14 +257,39 @@ depends_on = [
 ]
 }
 
-output "database_connection_string" {
-  value = vault_database_secret_backend_connection.postgres.postgresql[0].connection_url
+# output "database_connection_string" {
+#   value = vault_database_secret_backend_connection.postgres.postgresql[0].connection_url
+# }
+
+# output "database_name_from_vault_backend" {
+#   value = vault_database_secret_backend_connection.postgres.name
+# }
+
+# output "vault_token_boundary_periodic" {
+#   value = vault_token.boundary_token
+# }
+
+resource "vault_generic_secret" "ssh_key_tde" {
+  path = "kv/my-tde-key"
+  #namespace = var.vault_namespace
+  data_json = jsonencode({
+  "username": "vadmin",
+  "private_key": "${file("ahar-pubkey.pem")}"
+})
+
+depends_on = [
+  vault_mount.kv2,
+]
 }
 
-output "database_name_from_vault_backend" {
-  value = vault_database_secret_backend_connection.postgres.name
-}
-
-output "vault_token_boundary_periodic" {
-  value = vault_token.boundary_token
+resource "vault_generic_secret" "tde_rdp" {
+  path = "kv/my-rdp-userpass"
+  #namespace = var.vault_namespace
+  data_json = jsonencode({
+  "username": "mssql-tde-dev",
+  "password": "WRyzKyEalQ7cZXnxhLF0fF9VbJwmo4XC"
+})
+depends_on = [
+  vault_mount.kv_v1,
+]
 }

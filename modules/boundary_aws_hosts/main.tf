@@ -17,7 +17,7 @@ resource "aws_subnet" "boundary_poc" {
   vpc_id     = aws_vpc.boundary_poc.id
   cidr_block = var.subnet_prefix
   availability_zone = "${var.region}a"
-
+  
   tags = {
     Name = "${var.prefix}-subnet-a"
   }
@@ -306,7 +306,7 @@ resource "tls_private_key" "boundary_poc" {
 }
 
 locals {
-  private_key_filename = "${var.prefix}-ssh-key.pem"
+  private_key_filename = "${var.prefix}-ssh-key-2.pem"
 }
 
 resource "aws_key_pair" "boundary_poc" {

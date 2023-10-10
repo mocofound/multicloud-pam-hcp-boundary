@@ -66,3 +66,4 @@ resource "boundary_role" "boundary_azure_role" {
     grant_strings = ["id=*;type=*;actions=*"]
   scope_id      = boundary_scope.project_azure.id
 }
+

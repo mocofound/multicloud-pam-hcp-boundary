@@ -3,15 +3,15 @@ terraform {
   required_providers {
     hcp = {
       source  = "hashicorp/hcp"
-      version = "~>0.55.0"
-    }
-    boundary = {
-      source = "hashicorp/boundary"
-      version = "~>1.1.4"
-    }
+      version = "~>0.71.1"
+     }
+    # boundary = {
+    #   source = "hashicorp/boundary"
+    #   version = "~>1.1.9"
+    # }
     aws = {
       source  = "hashicorp/aws"
-      version = "=4.58.0"
+      version = "=4.65.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -19,11 +19,11 @@ terraform {
     }
     google = {
       source  = "hashicorp/google"
-      version = "~>4.56.0"
+      version = "~>4.63.1"
     }
     vault = {
       source = "hashicorp/vault"
-      version = "3.13.0"
+      version = "3.20.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -64,6 +64,14 @@ provider "azurerm" {
   features {}
 }
 
+ provider "vault" { 
+   add_address_to_env = true
+   address = module.hcp_vault.hcp_vault_cluster_public_ip
+   #address = ""
+   token = module.hcp_vault.hcp_vault_cluster_admin_token
+   namespace = var.vault_namespace
+ }
+
 provider "kubernetes" {
   config_context = "my-context"
   config_path = "~/.kube/config"
@@ -79,3 +87,13 @@ provider "kubernetes" {
 #   client_key             = file("~/.kube/client-key.pem")
 #   cluster_ca_certificate = file("~/.kube/cluster-ca-cert.pem")
 # }
+
+provider "boundary" {
+  addr                             = module.hcp_boundary_cluster.boundary_addr
+  auth_method_id = local.auth_method_id
+  #auth_method_id = data.http.boundary_cluster_auth_methods.id
+  auth_method_login_name  = module.hcp_boundary_cluster.boundary_login_name
+  auth_method_password    = module.hcp_boundary_cluster.boundary_login_password
+  scope_id = "global"
+}
+

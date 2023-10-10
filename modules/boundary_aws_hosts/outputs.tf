@@ -20,3 +20,16 @@ output "aws_ec2_instance" {
 output "aws_ec2_windows_instance" {
   value = aws_instance.windows-server
 }
+
+output "azure_tls_private_key" {
+  value     = tls_private_key.boundary_poc.private_key_pem
+  sensitive = true
+}
+
+output  "aws_vpc_id" {
+  value =  aws_vpc.boundary_poc.id
+}
+
+output  "aws_subnet_id" {
+  value =  aws_subnet.boundary_poc.id
+}
